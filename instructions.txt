@@ -1,0 +1,72 @@
+Final Project : Data Analysis Techniques
+
+For your final project, you will be working in groups to analyze a dataset using various data analysis techniques. Here's what you need to do:
+    1. Dataset Selection
+        - Get together with your group and choose a dataset that interests all of you. It can be the same dataset as last time or a completely new one.
+
+    2. Data Analysis Techniques
+        - Apply any one or more of the following data analysis techniques to your chosen dataset:
+            - Apriori Algorithm
+            - Clustering
+                - K-means
+                - EM Clustering
+                - DBScan Clustering
+                - SLINK Clustering
+            - Linear Regression
+
+    3. Data Exploration and Preparation
+        - Once you have your dataset, make sure it's ready for analysis. Clean the data, handle missing values, and prepare it for the chosen analysis technique.
+        Also provide some basic descriptive statistics of your data.
+
+    4. Analysis and Insights
+        - Use the selected technique to analyze the dataset. Dive deep into the insights and patterns that emerge from your analysis.
+
+    5. Presentation Preparation
+        - To present your findings, you will create an interactive application using Streamlit that you will present to the class. This will allow your audience to interact with your data and visualizations.  You are free to creatively decide how to layout your application, but you should include the following:
+
+        Overview Section
+
+        - Briefly introduce the dataset, research question, and selected analysis technique.
+            - Display the dataset's structure (e.g., tables, column descriptions) using Streamlit's data visualization tools.
+            - Data Exploration and Preparation Section
+
+        - Demonstrate how you prepared the dataset for analysis (e.g., handling missing values, cleaning steps).
+            - Include visualizations (e.g., histograms, heatmaps) to explain data distribution or transformations.
+            - Analysis and Insights Section
+
+        - Provide interactive visualizations of your results (e.g., scatter plots, cluster maps, regression lines).
+            - Highlight key insights, patterns, trends, or anomalies.
+            - Add filters or sliders to allow users to explore the data further.
+            - Conclusions and Recommendations Section
+
+        - Summarize the main takeaways and provide actionable recommendations based on your findings.
+        Include text boxes or dropdowns to let users explore different insights interactively.
+
+    6. Presentation Recording
+        - Since we will be presenting online, pre-record your presentation to ensure it's within 10-12 minutes. Keep it concise and engaging for your audience.
+    
+    7. Grading Criteria
+        - Your assignment will be graded based on the following criteria:
+
+         + Analysis Technique (30%)
+            - Alignment of the chosen analysis technique with the dataset and research question.
+            - Depth and quality of the analysis.
+            - Depth and Quality of Insights (30%)
+            - Clear interpretation of results with meaningful insights.
+            - Exploration of patterns, trends, or anomalies in the data.
+
+         + Data Visualization (15%)
+            - Effective use of Streamlit's visualization tools to enhance understanding.
+            - Interactive elements like filters or dropdowns to make the insights more engaging.
+
+         + Creativity and Novelty (15%)
+            - Presentation of unique or surprising findings.
+            - Exploration of creative approaches to the problem or dataset.
+            
+         + Application Quality (10%)
+            - Clarity and coherence of the app's structure and content.
+            - Engagement and intuitiveness of the user interface.
+            - Proper deployment and functionality of the app.
+
+Remember to collaborate effectively with your group members and have fun exploring and analyzing your chosen dataset! If you have any questions, feel free to reach out to me. Final submission and presentations will be on December 10, 2024. 
+
