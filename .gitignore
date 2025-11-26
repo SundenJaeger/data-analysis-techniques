@@ -1,0 +1,46 @@
+--- Python Basics ---
+
+pycache/
+*.py[cod]
+*$py.class
+
+--- Virtual Environments (CRITICAL) ---
+
+Ignores the folder where your libraries are installed
+
+venv/
+.venv/
+env/
+.env/
+
+--- IDE Settings (Optional but Recommended) ---
+
+Ignores VS Code or PyCharm settings files
+
+.vscode/
+.idea/
+
+--- Jupyter Notebooks ---
+
+Ignores the auto-save checkpoints
+
+.ipynb_checkpoints
+
+--- OS Generated Files ---
+
+.DS_Store
+Thumbs.db
+
+--- Streamlit ---
+
+Ignores local Streamlit config/secrets
+
+.streamlit/secrets.toml
+
+--- Data Files (Optional) ---
+
+If your CSV is massive (>100MB), uncomment the line below to ignore it.
+
+Since your dataset is 10k rows (small), you usually CAN commit it.
+
+*.csv
