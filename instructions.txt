@@ -68,5 +68,3 @@ For your final project, you will be working in groups to analyze a dataset using
             - Engagement and intuitiveness of the user interface.
             - Proper deployment and functionality of the app.
 
-Remember to collaborate effectively with your group members and have fun exploring and analyzing your chosen dataset! If you have any questions, feel free to reach out to me. Final submission and presentations will be on December 10, 2024. 
-
