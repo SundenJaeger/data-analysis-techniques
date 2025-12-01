@@ -11,6 +11,19 @@ def show(df):
     *IQ, CGPA, Communication Skills, Projects, and Academic Performance.*
     """)
 
+    # --- DARK MODE SETTINGS (Matching EDA Tab) ---
+    dark_params = {
+        "figure.facecolor": "black",
+        "axes.facecolor": "black",
+        "axes.edgecolor": "white",
+        "axes.labelcolor": "white",
+        "xtick.color": "white",
+        "ytick.color": "white",
+        "text.color": "white",
+        "grid.color": "gray",
+        "grid.alpha": 0.3
+    }
+
     # 1. Prepare Data for Model
     features = ['IQ', 'CGPA', 'Communication_Skills', 'Projects_Completed', 'Academic_Performance']
     scaler = StandardScaler()
@@ -44,19 +57,32 @@ def show(df):
     col1, col2 = st.columns(2)
     
     with col1:
-        # Bar Chart: Communication
-        fig4, ax4 = plt.subplots()
-        sns.barplot(x=profile.index, y=profile['Communication_Skills'], palette='viridis', ax=ax4)
-        ax4.set_title("Avg Communication Score by Cluster")
-        ax4.set_ylabel("Score (1-10)")
-        st.pyplot(fig4)
+        # Apply Dark Mode Context
+        with plt.rc_context(dark_params):
+            # RESIZED: (5, 3) fits perfectly in a half-width column
+            fig4, ax4 = plt.subplots(figsize=(5, 3)) 
+            
+            sns.barplot(x=profile.index, y=profile['Communication_Skills'], palette='viridis', ax=ax4)
+            
+            ax4.set_title("Avg Communication Score by Cluster", color='white')
+            ax4.set_ylabel("Score (1-10)")
+            
+            plt.tight_layout()
+            st.pyplot(fig4)
+            
         st.caption("Observation: Cluster 0 dominates in Communication.")
         
     with col2:
-        # Bar Chart: Projects
-        fig5, ax5 = plt.subplots()
-        sns.barplot(x=profile.index, y=profile['Projects_Completed'], palette='viridis', ax=ax5)
-        ax5.set_title("Avg Projects Completed by Cluster")
-        ax5.set_ylabel("Count")
-        st.pyplot(fig5)
+        with plt.rc_context(dark_params):
+            # RESIZED: (5, 3)
+            fig5, ax5 = plt.subplots(figsize=(5, 3))
+            
+            sns.barplot(x=profile.index, y=profile['Projects_Completed'], palette='viridis', ax=ax5)
+            
+            ax5.set_title("Avg Projects Completed by Cluster", color='white')
+            ax5.set_ylabel("Count")
+            
+            plt.tight_layout()
+            st.pyplot(fig5)
+            
         st.caption("Observation: Cluster 1 works harder (more projects), but fails without communication.")

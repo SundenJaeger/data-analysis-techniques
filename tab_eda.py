@@ -11,8 +11,6 @@ def show(df, df_filtered):
     between variables before we apply Machine Learning.
     """)
 
-    # --- DARK MODE SETTINGS FOR MATPLOTLIB ---
-    # We create a dictionary of parameters to force black background and white text
     dark_params = {
         "figure.facecolor": "black",
         "axes.facecolor": "black",
@@ -38,17 +36,15 @@ def show(df, df_filtered):
 
     # --- SECTION 2: UNIVARIATE ANALYSIS ---
     st.subheader("1. Feature Distributions")
-    
+
     col_dist_graph, col_dist_text = st.columns([2, 1])
 
     with col_dist_graph:
-        feature = st.selectbox("Select Feature to Visualize:", 
-                               ['IQ', 'CGPA', 'Communication_Skills', 'Projects_Completed', 'Academic_Performance'])
-        
-        # Apply Dark Mode Context
+        feature = st.selectbox("Select Feature to Visualize:",
+        ['IQ', 'CGPA', 'Communication_Skills', 'Projects_Completed', 'Academic_Performance'])
+
         with plt.rc_context(dark_params):
             fig, ax = plt.subplots(figsize=(6, 3))
-            # Use a color that pops on black (e.g., cyan or teal)
             sns.histplot(df_filtered[feature], kde=True, color='#00FFFF', bins=20, ax=ax)
             ax.set_title(f"Distribution of {feature}", color='white')
             plt.tight_layout() 
@@ -69,42 +65,40 @@ def show(df, df_filtered):
 
     # --- SECTION 3: CORRELATION ANALYSIS ---
     st.subheader("2. Correlation Analysis")
-    
+
     col_corr_1, col_corr_2 = st.columns([1.5, 1])
-    
+
     with col_corr_1:
         numeric_df = df.select_dtypes(include=[np.number])
         corr_matrix = numeric_df.corr()
-        
+
         with plt.rc_context(dark_params):
             fig_corr, ax_corr = plt.subplots(figsize=(6, 5))
-            
+
             sns.heatmap(
-                corr_matrix, 
-                annot=True, 
-                fmt=".2f", 
-                cmap='coolwarm', 
-                vmin=-1, vmax=1, center=0, 
-                cbar=False, 
-                ax=ax_corr, 
-                # CHANGE: Removed "color": "white" so Seaborn picks the best color automatically
-                annot_kws={"size": 6} 
+                corr_matrix,
+                annot=True,
+                fmt=".2f",
+                cmap='coolwarm',
+                vmin=-1, vmax=1, center=0,
+                cbar=False,
+                ax=ax_corr,
+                annot_kws={"size": 6}
             )
-            
-            # REDUCED SIZE: Shrink the X and Y axis labels to size 7
+
             ax_corr.tick_params(axis='both', which='major', labelsize=7)
-            
+
             plt.tight_layout()
             st.pyplot(fig_corr)
-        
+
     with col_corr_2:
         st.write("#### 🏆 Top Predictors")
         st.write("Correlation with `Placement`:")
-        
+
         target_corr = corr_matrix['Placement_Binary'].sort_values(ascending=False).drop('Placement_Binary')
-        
+
         st.dataframe(
-            target_corr.to_frame().style.background_gradient(cmap='icefire', vmin=-1, vmax=1), 
+            target_corr.to_frame().style.background_gradient(cmap='icefire', vmin=-1, vmax=1),
             height=300
         )
 
@@ -119,54 +113,49 @@ def show(df, df_filtered):
     with col_scat_1:
         with plt.rc_context(dark_params):
             fig_scat, ax_scat = plt.subplots(figsize=(7, 4))
-            
+
             sns.scatterplot(
-                data=df_filtered, 
-                x='IQ', 
-                y='CGPA', 
-                hue='Placement', 
+                data=df_filtered,
+                x='IQ',
+                y='CGPA',
+                hue='Placement',
                 style='Placement',
-                alpha=0.8, # Slightly higher alpha for visibility on black
+                alpha=0.8,
                 palette='seismic',
                 ax=ax_scat,
                 s=30,
-                edgecolor='white', # Add white border to dots for contrast
+                edgecolor='white',
                 linewidth=0.3
             )
-            
+
             plt.axhline(y=8, color='gray', linestyle='--', alpha=0.5)
             plt.axvline(x=110, color='gray', linestyle='--', alpha=0.5)
-            
+
             ax_scat.set_title("IQ vs CGPA Quadrants", color='white')
-            
-            # Legend styling for dark mode
+
             legend = ax_scat.legend(title="Placement Status", bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small')
             plt.setp(legend.get_title(), color='white')
             for text in legend.get_texts():
                 text.set_color("white")
-            # Make legend background black or transparent
             legend.get_frame().set_facecolor('black')
             legend.get_frame().set_edgecolor('white')
-            
+
             plt.tight_layout()
             st.pyplot(fig_scat)
 
     with col_scat_2:
         st.markdown("#### 🔍 Quadrant Analysis")
-        
         st.success("""
         **1. The Safe Zone (Top-Right):**
         * **High IQ (>110) & High CGPA (>8.5)**
         * Consistent placement density.
         """)
-        
         st.info("""
         **2. The Hard Workers (Top-Left & Bottom-Right):**
         * **Top-Left:** Avg IQ but High CGPA.
         * **Bottom-Right:** High IQ but Low CGPA.
         * *Observation:* Leveraging specific strengths.
         """)
-        
         st.error("""
         **3. The Underachievers (Bottom-Left):**
         * **Low IQ (<110) & Low CGPA (<8.5)**
