@@ -1,0 +1,11 @@
+Hello everyone! Have you ever wondered what it takes to land a job offer before you graduate? Our department, especially our dean, have always had great pride in BSCS students already having job offers before they graduate. But do you know have any idea what areas you need to focus in to become placed? 
+
+For our final project, our group wishes to answer this question by conducting data analysis on College Student Placement Factors dataset, a synthetic dataset that simulates the profile of 10000 students. We wanted to understand what factors most strongly influences the placement of students.
+
+For our data analysis technique, we chose Logistic Regression as it is ideal for predicting categorical variables, which is what the placement factor in the dataset is. However, it does more than that, as it also allows us which factors contributes significantly to the placement factor, which is what we want.
+
+Now a brief overview for our dataset. Our dataset includes: IQ score, CGPA, No. of projs completed, communication skills, extracurricular involvement, previous work experience, and the target variable, the Placement.
+
+First are some basic Descriptive Statistics
+
+from here we can see that there is not much significant spread among the academic related attributes. however, the opposite can be said about skillbased attributes like internship experience, projects completed, etc.
