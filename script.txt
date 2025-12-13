@@ -1,11 +1,68 @@
-Hello everyone! Have you ever wondered what it takes to land a job offer before you graduate? Our department, especially our dean, have always had great pride in BSCS students already having job offers before they graduate. But do you know have any idea what areas you need to focus in to become placed? 
+Project Presentation: Determinants of College Student Placement
+(Approx. 8 Minutes)
 
-For our final project, our group wishes to answer this question by conducting data analysis on College Student Placement Factors dataset, a synthetic dataset that simulates the profile of 10000 students. We wanted to understand what factors most strongly influences the placement of students.
+[0:00-1:00] INTRODUCTION & VARIABLES
+[Visual: Title Slide / Research Question]
 
-For our data analysis technique, we chose Logistic Regression as it is ideal for predicting categorical variables, which is what the placement factor in the dataset is. However, it does more than that, as it also allows us which factors contributes significantly to the placement factor, which is what we want.
+"With the job market being so competitive right now, college students are always on the lookout for anything to improve their chances of landing a job offer. They may join school organizations, sign up for internships, or enter competitions. But what factors do really affect placements?
 
-Now a brief overview for our dataset. Our dataset includes: IQ score, CGPA, No. of projs completed, communication skills, extracurricular involvement, previous work experience, and the target variable, the Placement.
+With our dataset, we wanted to find that answer.
 
-First are some basic Descriptive Statistics
+To do this, we first need to understand our data. Our Target Variable is simple: 'Placement'—whether a student gets a job offer or not. To predict this, we examined several Predictor Variables. These factors include academic metrics, such as CGPA and the number of projects completed, to skills and experiences, such as communication skills and internship history.
 
-from here we can see that there is not much significant spread among the academic related attributes. however, the opposite can be said about skillbased attributes like internship experience, projects completed, etc.
+In order to find out the relationship between them, we used Logistic Regression, a technique for predicting categorical variables. We actually tried using Linear Regression and K-Means clustering initially, but we weren't able to produce any meaningful insight with those methods."
+
+[1:00-2:30] MODEL SIGNIFICANCE
+[Visual: Model Metrics & Confusion Matrix]
+
+"Now, with Logistic Regression, we were able to produce results.
+
+And to first prove that our model has significance or really is useful, we used the Chi-Squared test. This is a statistical method used in determining if our target variable and predictor variables really do have relationships. And according to it, our predictor and target variables really do have a significant relationship.
+
+Our model achieved an accuracy of 90%. But we wanted to look deeper. Looking at our Confusion Matrix, we see the model is very precise when predicting students who won't be placed. It’s conservative—meaning it avoids giving false hope. If it predicts a placement, the probability is very high.
+
+We also checked the ROC-AUC score, which came out to 0.94. This confirms that our model is robust and good at distinguishing between the two classes."
+
+[2:30-4:30] ANALYSIS OF ODDS RATIOS
+[Visual: Feature Importance / Odds Ratio Chart]
+
+"The next part is: how much do the predictor variables affect our target variable?
+
+Here we used Odds Ratio, a method that shows how strong the association of two variables are with one another. And from our results, we have Communication Skills as the strongest among the predictors.
+
+It has an Odds Ratio of 6.4. This means that a one-point increase in communication skills makes a student more than six times more likely to get placed. This influence is huge compared to the others.
+
+We also have CGPA and IQ as significant predictors, with scores of 5.4 and 5.0 respectively. This tells us that core competency is important, but still secondary to communication.
+
+But perhaps the most unexpected finding is Extra-curricular activities. It yielded an Odds Ratio of 0.97. Since this is close to 1, it implies no real effect. This contradicts the idea that joining every club improves your chances—our data suggests it has a negligible impact."
+
+[4:30-6:00] PUTTING IT INTO PRACTICE
+[Visual: Student Profile Comparison]
+
+"To really show how this works, let's compare two theoretical profiles.
+
+Profile A is your traditional high-achiever: 9.0 GPA, leader of three clubs, but average communication skills (5/10). Profile B is different: 7.5 GPA, zero clubs, but superior communication skills (9/10).
+
+Based on the weights in our model, Profile B is actually the one more likely to get placed.
+
+The impact of that Communication score outweighs the resume padding of Profile A. This demonstrates that articulation isn't just a 'soft skill'—it is the primary differentiator."
+
+[6:00-7:30] RECOMMENDATIONS
+[Visual: Recommendations Slide]
+
+"Based on this data, we have a few recommendations:
+
+For Students: You should shift effort from quantity of activities to quality of communication. Preparing for interviews and public speaking yields a higher return than just joining more student organizations.
+
+For Schools: Curricula should be structured to integrate communication training throughout the program, not just as an elective. We can also use this model as an early-warning system to help students with low communication scores before they graduate.
+
+For Recruiters: Since there is such a strong correlation here, screening for communication skills early in the process—rather than at the final interview—might improve candidate quality."
+
+[7:30-8:00] CONCLUSION
+[Visual: Summary Slide]
+
+"In conclusion, our analysis provides a data-driven look at placement.
+
+With 90% accuracy, we demonstrated that success is driven primarily by Communication Skills and Grades, while things like extra-curriculars are statistically insignificant.
+
+This insight allows us to make better decisions about where to invest time and resources. Thank you."
