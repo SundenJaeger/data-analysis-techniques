@@ -183,10 +183,19 @@ def main():
     # Title
     st.markdown('<h1 class="main-header">🎓 College Student Placement Analysis</h1>', unsafe_allow_html=True)
     
-    # Sidebar navigation
-    st.sidebar.title("📊 Navigation")
+    # Sidebar navigation# Sidebar Header
+    st.sidebar.markdown("""
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <h2 style="color: #ffffff; margin: 0; font-size: 1.5rem; font-weight: 700;">
+                Team Algorythm
+            </h2>
+            <p style="color: rgba(255, 255, 255, 0.7); margin: 0 0 0 0; font-size: 0.9rem;">
+                Final Project - CS365
+            </p>
+        </div>
+    """, unsafe_allow_html=True)
     section = st.sidebar.radio(
-        "Go to Section:",
+        "Navigation",
         ["Overview", "Data Preparation & Exploration", "Analysis & Findings", "Conclusions & Recommendations"]
     )
     # Load data
