@@ -392,9 +392,381 @@ def main():
     # ============================================================================
     elif section == "Data Preparation & Exploration":
         st.markdown('<h2 class="section-header">🔍 Data Preparation & Exploration</h2>', unsafe_allow_html=True)
-        
-        # TODO: Add data preparation and exploration content
-        st.write("Data preparation and exploration content goes here...")
+
+        # Data Preparation Steps
+        st.markdown("### 📝 Data Preparation Steps")
+
+        st.markdown("Click on each step to see the details:")
+
+        # Step 1: Data Inspection
+        with st.expander("**Step 1: Data Inspection** 🔍", expanded=False):
+            st.markdown("""
+            - Loaded the dataset with 10,000 student records
+            - Examined the structure using `df.info()` and `df.describe()`
+            - Verified all 10 columns were present
+            - Identified data types: 8 numerical features, 2 categorical features
+            - Checked dimensions: 10,000 rows × 10 columns
+            """)
+
+        # Step 2: Missing Value Analysis
+        with st.expander("**Step 2: Missing Value Analysis** ✅", expanded=False):
+            st.markdown("""
+            - Performed comprehensive missing value check using `df.isnull().sum()`
+            - **Result**: No missing values found in any column!
+            - Dataset is complete with 100% data availability
+            - No imputation or deletion required
+            """)
+
+            # Show missing value count
+            missing_data = pd.DataFrame({
+                'Column': df.columns,
+                'Missing Values': df.isnull().sum(),
+                'Percentage': (df.isnull().sum() / len(df) * 100).round(2)
+            })
+            st.dataframe(missing_data, use_container_width=True)
+
+        # Step 3: Outlier Detection & Treatment
+        with st.expander("**Step 3: Outlier Detection & Treatment** 📊", expanded=False):
+            st.markdown("""
+            **IQR (Interquartile Range) Method Used:**
+
+            The IQR method detects outliers using the formula:
+            - Lower Bound = Q1 - 1.5 × IQR
+            - Upper Bound = Q3 + 1.5 × IQR
+
+            **Findings:**
+            - **CGPA**: Detected 249 values > 10.0 (impossible values)
+              - **Action**: Capped all values at 10.0
+            - **IQ**: Detected 61 outliers beyond the IQR bounds
+              - **Action**: Kept as valid extreme values (some people have very high/low IQ)
+            - **All other features**: No significant outliers detected
+
+            **Why this matters:**
+            - CGPA capping ensures data integrity
+            - IQ outliers retained to preserve genuine variance
+            - Clean data leads to more reliable model predictions
+            """)
+
+        # Step 4: Categorical Encoding
+        with st.expander("**Step 4: Categorical Encoding** 🔄", expanded=False):
+            st.markdown("""
+            Converted categorical variables to numerical format for machine learning:
+
+            **Encoding Scheme:**
+            - 'Yes' → 1
+            - 'No' → 0
+
+            **Applied to:**
+            - `Internship_Experience`: Yes/No → 1/0
+            - `Placement`: Yes/No → 1/0 (Target Variable)
+
+            **Why binary encoding?**
+            - Logistic regression requires numerical inputs
+            - Binary encoding preserves the true/false nature of the data
+            - Simple and interpretable
+            """)
+
+            # Show transformation example
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("**Before Encoding:**")
+                st.dataframe(df[['Internship_Experience', 'Placement']].head(8),
+                             use_container_width=True)
+            with col2:
+                st.markdown("**After Encoding:**")
+                st.dataframe(df_model[['Internship_Experience', 'Placement']].head(8),
+                             use_container_width=True)
+
+        # Step 5: Feature Selection
+        with st.expander("**Step 5: Feature Selection** 🎯", expanded=False):
+            st.markdown("""
+            Selected 8 key predictor variables (features) for the model:
+
+            **Numerical Features:**
+            1. `IQ` - Intelligence Quotient
+            2. `Prev_Sem_Result` - Previous semester GPA
+            3. `CGPA` - Cumulative Grade Point Average
+            4. `Academic_Performance` - Overall academic score (1-10)
+            5. `Extra_Curricular_Score` - Extra-curricular activities score (0-10)
+            6. `Communication_Skills` - Communication skills rating (1-10)
+            7. `Projects_Completed` - Number of completed projects (0-5)
+
+            **Binary Features:**
+            8. `Internship_Experience` - Has internship experience (1=Yes, 0=No)
+
+            **Target Variable:**
+            - `Placement` - Whether student got placed (1=Yes, 0=No)
+
+            **Excluded:**
+            - `College_ID` - Not relevant for prediction (identifier only)
+
+            **Feature Engineering Considerations:**
+            - All features are measurable and objective
+            - No multicollinearity issues detected (correlation matrix checked)
+            - Features cover academic, skills, and experience dimensions
+            """)
+
+        # Step 6: Train-Test Split
+        with st.expander("**Step 6: Train-Test Split** 🔀", expanded=False):
+            st.markdown("""
+            Split the dataset for model training and validation:
+
+            **Split Ratio:**
+            - **Training Set**: 80% (8,000 students)
+            - **Test Set**: 20% (2,000 students)
+
+            **Configuration:**
+            - `random_state=42` for reproducibility
+            - Stratified split to maintain placement ratio
+
+            **Why 80-20 split?**
+            - Standard practice in machine learning
+            - Provides enough data for training (8,000 samples)
+            - Sufficient test data for reliable validation (2,000 samples)
+            - Prevents overfitting by evaluating on unseen data
+
+            **Result:**
+            - Model trained on 8,000 students
+            - Performance validated on 2,000 independent students
+            - Ensures model generalizes to new data
+            """)
+
+            # Show split statistics
+            col1, col2 = st.columns(2)
+            with col1:
+                st.metric("Training Samples", "8,000 (80%)")
+                st.metric("Training 'Placed'", f"{int(8000 * 0.1659)}")
+            with col2:
+                st.metric("Test Samples", "2,000 (20%)")
+                st.metric("Test 'Placed'", f"{int(2000 * 0.1659)}")
+
+        st.success("✅ All data preparation steps completed successfully! The dataset is now ready for modeling.")
+
+        # Show the transformation
+        st.markdown("#### Categorical Variable Encoding")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("**Original Values**")
+            st.dataframe(df[['Internship_Experience', 'Placement']].head(), use_container_width=True)
+        with col2:
+            st.markdown("**Encoded Values**")
+            st.dataframe(df_model[['Internship_Experience', 'Placement']].head(), use_container_width=True)
+
+        # Outlier Analysis
+        st.markdown("#### Outlier Detection & Treatment")
+
+        st.info("""
+        **IQR (Interquartile Range) Method Used:**
+        - Detected 249 CGPA values > 10.0 → Capped at 10.0
+        - Detected 61 IQ outliers (beyond 1.5×IQR) → Kept as valid extreme values
+        - All other features showed no significant outliers
+        """)
+
+        # Visualize outliers
+        outlier_feature = st.selectbox(
+            "Select feature to visualize outlier detection:",
+            ['IQ', 'CGPA', 'Communication_Skills', 'Projects_Completed']
+        )
+
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+
+        # Box plot
+        ax1.boxplot(df[outlier_feature].dropna(), vert=True)
+        ax1.set_ylabel(outlier_feature, fontsize=12)
+        ax1.set_title(f'{outlier_feature} - Box Plot (Outlier Detection)',
+                      fontsize=12, fontweight='bold')
+        ax1.grid(True, alpha=0.3)
+
+        # Calculate IQR bounds
+        Q1 = df[outlier_feature].quantile(0.25)
+        Q3 = df[outlier_feature].quantile(0.75)
+        IQR = Q3 - Q1
+        lower_bound = Q1 - 1.5 * IQR
+        upper_bound = Q3 + 1.5 * IQR
+
+        # Add reference lines
+        ax1.axhline(y=lower_bound, color='r', linestyle='--',
+                    label=f'Lower Bound: {lower_bound:.2f}')
+        ax1.axhline(y=upper_bound, color='r', linestyle='--',
+                    label=f'Upper Bound: {upper_bound:.2f}')
+        ax1.legend()
+
+        # Histogram with outlier regions
+        ax2.hist(df[outlier_feature].dropna(), bins=50, color='skyblue',
+                 edgecolor='black', alpha=0.7)
+        ax2.axvline(x=lower_bound, color='r', linestyle='--', linewidth=2,
+                    label='Outlier Threshold')
+        ax2.axvline(x=upper_bound, color='r', linestyle='--', linewidth=2)
+        ax2.set_xlabel(outlier_feature, fontsize=12)
+        ax2.set_ylabel('Frequency', fontsize=12)
+        ax2.set_title(f'{outlier_feature} - Distribution',
+                      fontsize=12, fontweight='bold')
+        ax2.legend()
+        ax2.grid(True, alpha=0.3)
+
+        plt.tight_layout()
+        st.pyplot(fig)
+        plt.close()
+
+        # Show outlier statistics
+        outlier_count = len(df[(df[outlier_feature] < lower_bound) |
+                               (df[outlier_feature] > upper_bound)])
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Outliers Detected", outlier_count)
+        with col2:
+            st.metric("Lower Bound", f"{lower_bound:.2f}")
+        with col3:
+            st.metric("Upper Bound", f"{upper_bound:.2f}")
+
+        # Descriptive Statistics
+        st.markdown("### 📈 Descriptive Statistics")
+
+        tab1, tab2 = st.tabs(["Overall Statistics", "Statistics by Placement"])
+
+        with tab1:
+            st.dataframe(df.describe(), use_container_width=True)
+
+        with tab2:
+            placed_stats = df[df['Placement'] == 'Yes'].describe()
+            not_placed_stats = df[df['Placement'] == 'No'].describe()
+
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("**Placed Students**")
+                st.dataframe(placed_stats, use_container_width=True)
+            with col2:
+                st.markdown("**Not Placed Students**")
+                st.dataframe(not_placed_stats, use_container_width=True)
+
+        # Data Visualizations
+        st.markdown("### 📊 Data Distribution Visualizations")
+
+        st.markdown("#### Distribution of Features by Placement Status")
+
+        # Feature selection as single selectbox instead of multiselect
+        selected_feature = st.selectbox(
+            "Select a feature to visualize:",
+            ['IQ', 'CGPA', 'Communication_Skills', 'Projects_Completed',
+             'Extra_Curricular_Score', 'Academic_Performance', 'Prev_Sem_Result'],
+            key='distribution_viz'
+        )
+
+        # Create a single row with histogram
+        fig, ax = plt.subplots(1, 1, figsize=(12, 6))
+
+        # Get data for selected feature
+        placed_data = df[df['Placement'] == 'Yes'][selected_feature].values
+        not_placed_data = df[df['Placement'] == 'No'][selected_feature].values
+
+        # Create histogram with placement overlay
+        ax.hist(not_placed_data, alpha=0.6, label='Not Placed', bins=30, color='#ff6b6b', edgecolor='black')
+        ax.hist(placed_data, alpha=0.6, label='Placed', bins=30, color='#51cf66', edgecolor='black')
+
+        ax.set_xlabel(selected_feature, fontsize=12, fontweight='bold')
+        ax.set_ylabel('Frequency', fontsize=12, fontweight='bold')
+        ax.set_title(f'Distribution of {selected_feature} by Placement Status',
+                     fontsize=14, fontweight='bold')
+        ax.legend(fontsize=11, loc='upper right')
+        ax.grid(True, alpha=0.3, axis='y')
+
+        plt.tight_layout()
+        st.pyplot(fig)
+        plt.close()
+
+        # Show summary statistics for the selected feature
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric(
+                f"Mean ({selected_feature})",
+                f"{df[selected_feature].mean():.2f}",
+                help="Overall average across all students"
+            )
+        with col2:
+            st.metric(
+                f"Placed - Mean",
+                f"{df[df['Placement'] == 'Yes'][selected_feature].mean():.2f}",
+                delta=f"{(df[df['Placement'] == 'Yes'][selected_feature].mean() - df[selected_feature].mean()):.2f}",
+                help="Average for placed students"
+            )
+        with col3:
+            st.metric(
+                f"Not Placed - Mean",
+                f"{df[df['Placement'] == 'No'][selected_feature].mean():.2f}",
+                delta=f"{(df[df['Placement'] == 'No'][selected_feature].mean() - df[selected_feature].mean()):.2f}",
+                delta_color="inverse",
+                help="Average for not placed students"
+            )
+
+        # Correlation Heatmap
+        st.markdown("#### Correlation Heatmap")
+
+        fig, ax = plt.subplots(figsize=(12, 8))
+
+        # Select only numeric columns for correlation
+        numeric_cols = df_model.select_dtypes(include=[np.number]).columns
+        corr_matrix = df_model[numeric_cols].corr()
+
+        sns.heatmap(corr_matrix, annot=True, fmt='.2f', cmap='coolwarm',
+                    center=0, square=True, ax=ax, cbar_kws={'shrink': 0.8})
+        ax.set_title('Feature Correlation Matrix', fontsize=16, fontweight='bold')
+        plt.tight_layout()
+        st.pyplot(fig)
+        plt.close()
+
+        # Placement Distribution
+        st.markdown("### 🎯 Target Variable Distribution")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            # Pie chart
+            fig, ax = plt.subplots(figsize=(8, 6))
+            placement_counts = df['Placement'].value_counts()
+            colors = ['#ff6b6b', '#51cf66']
+            ax.pie(placement_counts, labels=placement_counts.index, autopct='%1.1f%%',
+                   colors=colors, startangle=90, textprops={'fontsize': 12})
+            ax.set_title('Placement Distribution', fontsize=14, fontweight='bold')
+            st.pyplot(fig)
+            plt.close()
+
+        with col2:
+            # Bar chart
+            fig, ax = plt.subplots(figsize=(8, 6))
+            placement_counts.plot(kind='bar', color=colors, ax=ax)
+            ax.set_title('Placement Counts', fontsize=14, fontweight='bold')
+            ax.set_xlabel('Placement Status')
+            ax.set_ylabel('Count')
+            ax.set_xticklabels(ax.get_xticklabels(), rotation=0)
+
+            # Add value labels on bars
+            for i, v in enumerate(placement_counts):
+                ax.text(i, v + 50, str(v), ha='center', va='bottom', fontweight='bold')
+
+            plt.tight_layout()
+            st.pyplot(fig)
+            plt.close()
+
+        # Box plots
+        st.markdown("#### Box Plots: Feature Comparison by Placement")
+
+        selected_feature = st.selectbox(
+            "Select feature for detailed box plot:",
+            ['IQ', 'CGPA', 'Communication_Skills', 'Projects_Completed',
+             'Extra_Curricular_Score', 'Academic_Performance']
+        )
+
+        fig, ax = plt.subplots(figsize=(10, 6))
+        df.boxplot(column=selected_feature, by='Placement', ax=ax,
+                   patch_artist=True, grid=False)
+        ax.set_title(f'{selected_feature} Distribution by Placement Status',
+                     fontsize=14, fontweight='bold')
+        ax.set_xlabel('Placement Status', fontsize=12)
+        ax.set_ylabel(selected_feature, fontsize=12)
+        plt.suptitle('')  # Remove the automatic title
+        plt.tight_layout()
+        st.pyplot(fig)
+        plt.close()
     
     # ============================================================================
     # SECTION 3: ANALYSIS & FINDINGS
