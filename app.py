@@ -203,10 +203,10 @@ def main():
         
         with col1:
             # Pie Chart
-            fig, ax = plt.subplots(figsize=(8, 6))
+            fig, ax = plt.subplots(figsize=(3, 2))  # Keep your small size
             placement_counts = df['Placement'].value_counts()
-            colors = ['#ff6b6b', '#51cf66']
-            explode = (0.05, 0.05)  # Slight separation for both slices
+            colors = ["#0800ff", "#38be16"]
+            explode = (0.05, 0.05)
             
             wedges, texts, autotexts = ax.pie(
                 placement_counts, 
@@ -215,14 +215,16 @@ def main():
                 colors=colors,
                 startangle=90,
                 explode=explode,
-                textprops={'fontsize': 12, 'fontweight': 'bold'}
+                textprops={'fontsize': 6, 'fontweight': 'bold'}
             )
             
-            ax.set_title('Placement Distribution (Class Balance)', 
-                        fontsize=14, fontweight='bold', pad=20)
+            ax.set_title('Placement Distribution', 
+                        fontsize=8, fontweight='bold', pad=10)
             
             plt.tight_layout()
-            st.pyplot(fig)
+            
+            # This is the key change: set use_container_width=False
+            st.pyplot(fig, use_container_width=False)
             plt.close()
         
         with col2:
@@ -251,46 +253,72 @@ def main():
         # Methodology
         st.markdown("### 🔬 Methodology: Why Logistic Regression?")
         
-        col1, col2 = st.columns([2, 1])
+        st.markdown("""
+        We selected **Logistic Regression** as our primary technique because it moves beyond simple observation 
+        into actual forecasting. It is the perfect mathematical tool for answering our specific question: 
+        *"Will this student get a job?"*
+        """)
         
+        # Create 3 columns for the Custom Cards
+        col1, col2, col3 = st.columns(3)
+        
+        # Define the card style function for reusability
+        def custom_card(title, subtitle, text):
+            return f"""
+            <div style='background-color: #e8f4f8; 
+                        padding: 1.5rem; 
+                        border-radius: 0.5rem; 
+                        border-left: 5px solid #00a8e8;
+                        height: 100%;'>
+                <h3 style='color: #0c5460; margin: 0; font-size: 1.2rem; border-bottom: 1px solid #b8daff; padding-bottom: 5px;'>
+                    {title}
+                </h3>
+                <p style='font-size: 1.1rem; font-weight: bold; margin: 10px 0; color: #007bff;'>
+                    {subtitle}
+                </p>
+                <p style='font-size: 0.95rem; margin: 0; color: #333; line-height: 1.5;'>
+                    {text}
+                </p>
+            </div>
+            """
+
         with col1:
-            st.markdown("""
-            We selected **Logistic Regression** not just because it fits the data, but because it directly answers our research questions about student success:
+            st.markdown(custom_card(
+                title="1. Binary Target",
+                subtitle="The 'Yes/No' Reality",
+                text="Our goal is to predict a clear outcome: <b>Placed</b> or <b>Not Placed</b>. <br><br>Linear regression predicts continuous numbers (like salary), which fails for a binary question. Logistic regression is purpose-built for this classification."
+            ), unsafe_allow_html=True)
             
-            1. **Placement is Binary (Yes/No):** Our primary question is simple: *"Will this student get a job?"* This is a classification problem with only two outcomes: **Placed** or **Not Placed**. Unlike Linear Regression, which would output nonsensical values (like "0.75 of a job"), Logistic Regression is purpose-built to handle this specific "Pass/Fail" scenario.
-            
-            2. **Quantifying "Success Factors" (Odds Ratios):**
-            We don't just want to predict *who* gets placed; we want to tell students *how* to get placed. Logistic Regression gives us **Odds Ratios**, allowing us to make powerful statements like: *"Improving Communication Skills by 1 point makes you 6 times more likely to succeed."* This makes our insights actionable.
-            
-            3. **Risk Assessment (Probability):**
-            Universities need to identify at-risk students. This model doesn't just guess; it calculates a **Probability Score** (e.g., "Student A has a 45% chance"). This allows schools to target interventions toward students who are "on the fence" rather than those who are already safe.
-            
-            4. **Proving it isn't Luck (Significance):**
-            We need to prove that factors like "CGPA" and "Communication" actually matter. This method allows us to use the **Chi-Squared Test** to statistically prove that these relationships are real and not just random noise in the dataset.
-            """)
-        
         with col2:
-            st.markdown("**Technique Fit:**")
+            st.markdown(custom_card(
+                title="2. Predictive Power",
+                subtitle="Beyond Correlation",
+                text="Correlation only tells us if two things are related. Logistic Regression takes us a step further. <br><br>It combines complex factors (IQ, CGPA, Skills) into a single equation that can actually <b>forecast</b> the future outcome for a new student."
+            ), unsafe_allow_html=True)
             
-            comparison_df = pd.DataFrame({
-                'Technique': ['Linear Regression', 'Logistic Regression'],
-                'Output': ['Continuous Number\n(e.g., Salary, Age)', 'Probability of Class\n(e.g., Chance of Placement)'],
-                'Fit for Us': ['❌ Incorrect', '✅ Perfect Fit']
-            })
-            
-            st.dataframe(comparison_df, use_container_width=True, hide_index=True)
-            
-            st.info("""
-            **Contextual Match:**
-            
-            Since we are dealing with a **Categorical Target** (Placement Status) and need **Explainable Drivers** (Skills/Grades), this is the optimal statistical approach.
-            """)
+        with col3:
+            st.markdown(custom_card(
+                title="3. Clear, Usable Data",
+                subtitle="Actionable Insights",
+                text="This method provides results we can actually use. Instead of vague trends, it gives us precise metrics: <br><br>• <b>Probability:</b> '85% chance of success'<br>• <b>Odds:</b> '6x higher likelihood'<br><br>This clarity makes insights actionable."
+            ), unsafe_allow_html=True)
         
         st.markdown("---")
         
         # Model Validation - Chi-Squared Test
         st.markdown("### 📊 Model Validation: Statistical Significance Test")
         
+        # 1. Definition (Placed under header)
+        st.markdown("""
+        **Likelihood Ratio Test (Chi-Squared Test)**
+        
+        This statistical test compares our **full model** (containing all predictor variables like IQ, CGPA, etc.) 
+        against a **null model** (a baseline model that just guesses the average placement rate for everyone). 
+        It effectively answers the question: *"Does our model actually predict anything, or is it just guessing?"*
+        """)
+        
+        st.markdown("---")
+
         # Calculate likelihood ratio test
         # Null model (intercept only)
         null_prob = y.mean()
@@ -316,65 +344,76 @@ def main():
         from scipy.stats import chi2
         p_value = chi2.sf(g_statistic, df_degrees)
         
-        col1, col2 = st.columns([1, 2])
+        col1, col2 = st.columns([1, 1])
         
         with col1:
-            # Significance Metric Card
+            # 1. Define variables based on p-value
             if p_value < 0.001:
                 significance_text = "p < 0.001"
                 interpretation = "Highly Significant ✅"
-                color = "green"
+                bg_color = "#d4edda"
+                border_color = "#28a745"
+                text_color = "#155724"
             elif p_value < 0.05:
                 significance_text = f"p = {p_value:.4f}"
                 interpretation = "Significant ✅"
-                color = "green"
+                bg_color = "#d4edda"
+                border_color = "#28a745"
+                text_color = "#155724"
             else:
                 significance_text = f"p = {p_value:.4f}"
                 interpretation = "Not Significant ❌"
-                color = "red"
+                bg_color = "#f8d7da"
+                border_color = "#dc3545"
+                text_color = "#721c24"
             
-            st.markdown(f"""
-            <div style='background-color: {"#d4edda" if color == "green" else "#f8d7da"}; 
+            # 2. Build the HTML String separately (Safer)
+            card_html = f"""
+            <div style='background-color: {bg_color}; 
                         padding: 2rem; 
                         border-radius: 0.5rem; 
-                        border-left: 5px solid {"#28a745" if color == "green" else "#dc3545"};
-                        text-align: center;'>
-                <h3 style='color: {"#155724" if color == "green" else "#721c24"}; margin: 0;'>
-                    Model Significance
+                        border-left: 5px solid {border_color};
+                        text-align: center;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+                <h3 style='color: {text_color}; margin: 0; font-size: 1.4rem;'>
+                    Model Significance Result
                 </h3>
-                <p style='font-size: 2rem; font-weight: bold; margin: 1rem 0; color: {"#155724" if color == "green" else "#721c24"};'>
+                <p style='font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0; color: {text_color};'>
                     {significance_text}
                 </p>
-                <p style='font-size: 1.2rem; margin: 0; color: {"#155724" if color == "green" else "#721c24"};'>
+                <p style='font-size: 1.2rem; font-weight: bold; margin-bottom: 1.5rem; color: {text_color};'>
                     {interpretation}
                 </p>
+                <hr style='border-top: 1px solid {border_color}; opacity: 0.3; margin: 1rem 0;'>
+                <div style='display: flex; justify-content: space-around; color: {text_color};'>
+                    <div>
+                        <span style='font-size: 0.9rem; display: block;'>Chi-Squared (G)</span>
+                        <span style='font-size: 1.2rem; font-weight: bold;'>{g_statistic:.2f}</span>
+                    </div>
+                    <div>
+                        <span style='font-size: 0.9rem; display: block;'>Degrees of Freedom</span>
+                        <span style='font-size: 1.2rem; font-weight: bold;'>{df_degrees}</span>
+                    </div>
+                </div>
             </div>
-            """, unsafe_allow_html=True)
+            """
+            
+            # 3. Render the HTML
+            st.markdown(card_html, unsafe_allow_html=True)
         
         with col2:
-            st.markdown("**Likelihood Ratio Test (Chi-Squared Test):**")
+            st.markdown("### 💡 Interpretation")
             
-            st.markdown(f"""
-            This statistical test compares our **full model** (with all predictors) against a **null model** 
-            (which just guesses the average placement rate for everyone).
+            st.info(f"""
+            With a p-value of **{significance_text}**, we can conclude with **>99.9% confidence** that our predictor variables 
+            (IQ, CGPA, Communication Skills, etc.) significantly improve prediction compared to random guessing.
+            """)
             
-            **Test Results:**
-            - **Chi-Squared Statistic (G):** {g_statistic:.2f}
-            - **Degrees of Freedom:** {df_degrees}
-            - **P-Value:** {significance_text}
-            
-            **Interpretation:**
-            
-            {f"With p < 0.001, we can conclude with **>99.9% confidence** that our predictor variables " +
-            "(IQ, CGPA, Communication Skills, etc.) **significantly improve prediction** compared to " +
-            "random guessing." if p_value < 0.001 else 
-            f"The model {'is' if p_value < 0.05 else 'is not'} statistically significant."}
-            
-            **What This Means:**
-            - ✅ Our findings are **not due to chance or luck**
-            - ✅ The relationships we identify are **statistically valid**
-            - ✅ The model provides **reliable predictions** for placement outcomes
-            - ✅ The predictor variables **genuinely influence** placement success
+            st.markdown("""
+            **What This Means for Our Project:**
+            - ✅ **Validity:** Our findings are not due to random chance.
+            - ✅ **Reliability:** The relationships we identify (like Communication Skills being important) are statistically real.
+            - ✅ **Utility:** The model is a valid tool for making predictions on new students.
             """)
         
         st.markdown("---")
