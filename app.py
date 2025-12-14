@@ -23,8 +23,10 @@ st.set_page_config(
 )
 
 # Custom CSS for styling
+# Custom CSS for styling
 st.markdown("""
     <style>
+    /* Main content styling */
     .main-header {
         font-size: 3rem;
         color: #1f77b4;
@@ -39,7 +41,92 @@ st.markdown("""
         margin-top: 2rem;
         margin-bottom: 1rem;
     }
-    </style>
+    
+    /* Sidebar Background - Rich Royal Dark Blue */
+    section[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+    }
+    
+    /* We must also target the inner container to ensure it doesn't override the color */
+    section[data-testid="stSidebar"] > div {
+        background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+    }
+    
+    /* Sidebar Title */
+    [data-testid="stSidebar"] h1 {
+        color: #ffffff;
+        font-size: 1.8rem;
+        font-weight: 700;
+        padding: 1rem 0;
+        text-align: center;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        border-bottom: 2px solid rgba(255,255,255,0.3);
+        margin-bottom: 1.5rem;
+    }
+    
+    /* --------------------------------------------------------------------
+       CUSTOM NAVIGATION BUTTONS (Replaces Radio Buttons)
+       -------------------------------------------------------------------- */
+    
+    /* 1. Target the label container (The "Button") */
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label {
+        background-color: rgba(255, 255, 255, 0.1);
+        
+        /* FIXED WIDTH & SIZE SETTINGS */
+        width: 100%;             /* Forces all buttons to take full available width */
+        max-width: 280px;        /* Optional: Prevents them from getting too huge */
+        height: 50px;            /* Fixed height for uniformity */
+        margin: 0 auto 10px auto; /* Centers them if they are smaller than container */
+        
+        padding: 0 10px;         /* Reduced padding since height is fixed */
+        border-radius: 8px;      /* Slightly smaller radius for cleaner look */
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.2s ease;
+        text-align: center;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    /* 2. Hide the default radio circle */
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label > div:first-child {
+        display: none;
+    }
+
+    /* 3. Style the text inside the button */
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] label p {
+        color: #ffffff !important;
+        
+        /* SMALLER FONT SIZE */
+        font-size: 0.95rem;      /* Reduced from 1.1rem */
+        
+        font-weight: 400;        /* Slightly lighter weight for elegance */
+        margin: 0;
+        white-space: nowrap;     /* Prevents text from wrapping awkwardly */
+    }
+
+    /* 4. Hover Effect */
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px); /* Subtle lift instead of side slide */
+        border-color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* 5. Active/Selected State */
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:has(input:checked) {
+        background: linear-gradient(90deg, #001f3f 0%, #003366 100%);
+        color: white;
+        border: 1px solid #003366;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        transform: scale(1.0); /* Removed scale to keep width uniform */
+    }
+    
+    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] > label:has(input:checked) p {
+        font-weight: 600; /* Bold only when selected */
+        font-size: 0.95rem; /* Keep size consistent */
+    }
 """, unsafe_allow_html=True)
 
 # Load and cache data
@@ -102,7 +189,6 @@ def main():
         "Go to Section:",
         ["Overview", "Data Preparation & Exploration", "Analysis & Findings", "Conclusions & Recommendations"]
     )
-    
     # Load data
     df = load_data()
     X, y, df_model = prepare_data(df)
