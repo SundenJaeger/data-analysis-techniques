@@ -187,10 +187,10 @@ def main():
     st.sidebar.markdown("""
         <div style="text-align: center; margin-bottom: 2rem;">
             <h2 style="color: #ffffff; margin: 0; font-size: 1.5rem; font-weight: 700;">
-                Team Algorythm
+                Final Project - CS365
             </h2>
             <p style="color: rgba(255, 255, 255, 0.7); margin: 0 0 0 0; font-size: 0.9rem;">
-                Final Project - CS365
+                Team Algorythm
             </p>
         </div>
     """, unsafe_allow_html=True)
@@ -205,50 +205,104 @@ def main():
     # Train model
     model, X_test, y_test, y_pred, y_pred_proba, accuracy, conf_matrix, auc_score, fpr, tpr, coefficients, odds_ratios = train_model(X, y)
 
-    # ============================================================================
+   # ============================================================================
     # SECTION 1: OVERVIEW
     # ============================================================================
     if section == "Overview":
-        st.markdown('<h2 class="section-header">📋 Overview</h2>', unsafe_allow_html=True)
+        st.markdown('<h2 class="section-header">Overview</h2>', unsafe_allow_html=True)
         
         # Research Statement
-        st.markdown("### 🎯 Research Statement")
+        st.markdown("### Research Statement")
         st.info("""
         **Primary Goal:** To predict the target variable (**Placement**) and determine exactly how much 
         influence different predictor variables (like Communication Skills, CGPA, IQ, etc.) have on that outcome.
-        
-        This analysis aims to identify which factors most significantly impact a student's likelihood of 
-        being placed in a job after graduation, providing actionable insights for students, universities, 
-        and employers.
         """)
         
         # The Dataset
-        st.markdown("### 📊 The Dataset")
+        st.markdown("### The Dataset")
         
+        # 1. Introduction Text
         st.markdown("""
-        We are analyzing the **'College Student Placement Factors'** dataset, which contains comprehensive 
-        information about college students and their placement outcomes. This dataset includes various 
-        academic, skill-based, and experience-related factors.
+        We **analyzed** the **'College Student Placement Factors'** dataset to determine exactly what drives student success.This dataset **contained** comprehensive information about student profiles, including their academic records, 
+        technical experience, and placement outcomes.
         """)
         
-        # Key Metrics
-        col1, col2, col3 = st.columns(3)
+        st.markdown("<br>", unsafe_allow_html=True) # Add breathing room
+
+        # 2. Layout: Pie Chart (Left) + Metrics (Right)
+        col_chart, col_metrics = st.columns([1, 2.5])
         
-        with col1:
-            st.metric("📚 Total Students", f"{len(df):,}")
-        
-        with col2:
+        with col_chart:
+            st.markdown("**Target Distribution**")
+            # Pie Chart
+            fig, ax = plt.subplots(figsize=(3, 3))
+            
+            # --- Make Chart Background Transparent ---
+            fig.patch.set_alpha(0.0)
+            ax.patch.set_alpha(0.0)
+            # -----------------------------------------
+            
+            placement_counts = df['Placement'].value_counts()
+            colors = ["#6b66ff", "#38be16"] 
+            explode = (0.05, 0.05)
+            
+            wedges, texts, autotexts = ax.pie(
+                placement_counts, 
+                labels=placement_counts.index,
+                autopct='%1.1f%%',
+                colors=colors,
+                startangle=90,
+                explode=explode,
+                textprops={'fontsize': 9, 'fontweight': 'bold'}
+            )
+            plt.tight_layout()
+            st.pyplot(fig, use_container_width=False)
+            plt.close()
+            
+        with col_metrics:
+            st.markdown("<h3 style='text-align: center; color: #ffffff; font-size:20px'>Key Metrics</h3>", unsafe_allow_html=True)
+            
+            # Helper function for Styled Metric Cards (Transparent Version)
+            def style_metric_card(label, value, icon=""):
+                return f"""
+                <div style='background-color: transparent; /* REMOVED BACKGROUND */
+                            padding: 20px; 
+                            /* REMOVED BOX SHADOW */
+                            text-align: center;
+                            border-bottom: 3px solid #1f77b4;
+                            height: 100%;'>
+                    <p style='font-size: 2.5rem; margin: 0;'>{icon}</p>
+                    <p style='color: #ffffff; font-size: 0.9rem; margin-top: 5px; font-weight: 600; text-transform: uppercase;'>{label}</p>
+                    <p style='color: #1f77b4; font-size: 1.8rem; font-weight: bold; margin: 0;'>{value}</p>
+                </div>
+                """
+            
+            # Create 3 sub-columns for the metrics
+            m1, m2, m3 = st.columns(3)
+            
             placed_count = df['Placement'].value_counts().get('Yes', 0)
-            st.metric("✅ Students Placed", f"{placed_count:,}")
-        
-        with col3:
             placement_rate = (placed_count / len(df)) * 100
-            st.metric("📈 Placement Rate", f"{placement_rate:.1f}%")
-        
+            
+            with m1:
+                st.markdown(style_metric_card("Total Students", f"{len(df):,}", "📚"), unsafe_allow_html=True)
+            
+            with m2:
+                st.markdown(style_metric_card("Placed", f"{placed_count:,}", "✅"), unsafe_allow_html=True)
+                
+            with m3:
+                st.markdown(style_metric_card("Placement Rate", f"{placement_rate:.1f}%", "📈"), unsafe_allow_html=True)
+            
+            # Add the analytical context below the metrics
+            st.markdown(f"""
+            <div style='background-color: transparent; padding: 10px; margin-top: 20px; font-size: 1rem; color: #DEDEDE; border-top: 1px solid #ddd;'>
+                <b>💡:</b> This 16.6% placement rate reveals a highly competitive environment where only ~1 in 6 students succeed.
+            </div>
+            """, unsafe_allow_html=True)
+
         st.markdown("---")
         
         # Sample Data
-        st.markdown("#### 📋 Sample Data (First 5 Rows)")
+        st.markdown("#### Sample Data (First 5 Rows)")
         st.dataframe(df.head(5), use_container_width=True)
         
         st.markdown("---")
@@ -257,13 +311,15 @@ def main():
         st.markdown("#### 📖 Variable Descriptions")
         
         st.markdown("""
-        To understand our analysis, we must distinguish between our **Target Variable** (the outcome we want to predict) 
-        and our **Predictor Variables** (the input factors).
+        To understand the analysis, we separated the data into two categories: the **outcome** we wanted to predict 
+        and the **factors** we used to make those predictions.
         """)
         
         col1, col2 = st.columns(2)
         
-        st.markdown("##### 🎯 Target Variable (The Outcome)")
+        st.markdown("##### 🎯 Target Variable")
+        st.markdown("This is the main outcome variable (Label) that our model will be predicting.")
+        
         target_data = {
             "Variable": ["Placement"],
             "Description": ["Final placement result (Yes = Placed, No = Not Placed)"],
@@ -271,10 +327,10 @@ def main():
         }
         target_df = pd.DataFrame(target_data)
         st.dataframe(target_df, use_container_width=True, hide_index=True)
-        
-        st.info("This is the 'Label' or 'Y' variable we are trying to predict.")
 
-        st.markdown("##### 🔍 Predictor Variables (The Factors)")
+        st.markdown("##### 🔍 Predictor Variables")
+        st.markdown("These are the input factors (Features) used to determine the placement outcome.")
+        
         predictor_data = [
             {"Variable": "Communication_Skills", "Description": "Soft skills rating (scale 1-10)", "Type": "Numerical"},
             {"Variable": "CGPA", "Description": "Cumulative Grade Point Average (5.0-10.0)", "Type": "Numerical"},
@@ -287,57 +343,9 @@ def main():
             {"Variable": "College_ID", "Description": "Unique college identifier", "Type": "Categorical (ID)"}
         ]
         predictor_df = pd.DataFrame(predictor_data)
-        st.table(predictor_df.style.hide(axis="index"))
         
-        st.markdown("---")
-        
-        # Target Variable Distribution
-        st.markdown("#### 🎯 Target Variable Distribution")
-        
-        col1, col2 = st.columns([1, 1])
-        
-        with col1:
-            # Pie Chart
-            fig, ax = plt.subplots(figsize=(2, 2))  # Keep your small size
-            placement_counts = df['Placement'].value_counts()
-            colors = ["#6b66ff", "#38be16"]
-            explode = (0.05, 0.05)
-            
-            wedges, texts, autotexts = ax.pie(
-                placement_counts, 
-                labels=placement_counts.index,
-                autopct='%1.1f%%',
-                colors=colors,
-                startangle=90,
-                explode=explode,
-                textprops={'fontsize': 6, 'fontweight': 'bold'}
-            )
-            plt.tight_layout()
-            
-            # This is the key change: set use_container_width=False
-            st.pyplot(fig, use_container_width=False)
-            plt.close()
-        
-        with col2:
-            st.markdown("**Class Balance Analysis:**")
-            
-            not_placed_count = placement_counts.get('No', 0)
-            not_placed_pct = (not_placed_count / len(df)) * 100
-            placed_pct = (placed_count / len(df)) * 100
-            
-            st.markdown(f"""
-            - **Not Placed:** {not_placed_count:,} students ({not_placed_pct:.1f}%)
-            - **Placed:** {placed_count:,} students ({placed_pct:.1f}%)
-            
-            **Interpretation:**
-            
-            The dataset shows a class imbalance with approximately {not_placed_pct:.0f}% of students 
-            not being placed versus {placed_pct:.0f}% being placed. This imbalance is typical in 
-            real-world placement scenarios and our model accounts for this distribution.
-            
-            A balanced dataset would show 50%-50%, but this real-world imbalance makes accurate 
-            prediction more challenging and valuable.
-            """)
+        # Using standard st.dataframe (No custom themes)
+        st.dataframe(predictor_df, use_container_width=True, hide_index=True, height=350)
         
         st.markdown("---")
         
@@ -350,26 +358,33 @@ def main():
         *"Will this student get a job?"*
         """)
         
-        # Create 3 columns for the Custom Cards
+        # Create 3 columns
         col1, col2, col3 = st.columns(3)
         
-        # Define the card style function for reusability
+        # Define the DARK card style with FIXED HEIGHT
         def custom_card(title, subtitle, text):
             return f"""
-            <div style='background-color: #e8f4f8; 
+            <div style='background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); 
                         padding: 1.5rem; 
-                        border-radius: 0.5rem; 
-                        border-left: 5px solid #00a8e8;
-                        height: 100%;'>
-                <h3 style='color: #0c5460; margin: 0; font-size: 1.2rem; border-bottom: 1px solid #b8daff; padding-bottom: 5px;'>
+                        border-radius: 10px; 
+                        border-left: 5px solid #3b82f6; 
+                        border-top: 1px solid rgba(255,255,255,0.1);
+                        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+                        min-height: 320px; /* <--- THIS FIXES THE HEIGHT */
+                        height: 100%;
+                        display: flex;
+                        flex-direction: column;'>
+                <h3 style='color: #ffffff; margin: 0; font-size: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 8px;'>
                     {title}
                 </h3>
-                <p style='font-size: 1.1rem; font-weight: bold; margin: 10px 0; color: #007bff;'>
+                <p style='font-size: 1.1rem; font-weight: bold; margin: 12px 0; color: #60a5fa;'>
                     {subtitle}
                 </p>
-                <p style='font-size: 0.95rem; margin: 0; color: #333; line-height: 1.5;'>
-                    {text}
-                </p>
+                <div style='flex-grow: 1;'>
+                    <p style='font-size: 0.95rem; margin: 0; color: #cbd5e1; line-height: 1.6;'>
+                        {text}
+                    </p>
+                </div>
             </div>
             """
 
@@ -399,26 +414,66 @@ def main():
         # Model Validation - Chi-Squared Test
         st.markdown("### 📊 Model Validation: Statistical Significance Test")
         
-        # 1. Definition (Placed under header)
         st.markdown("""
-        **Likelihood Ratio Test (Chi-Squared Test)**
-        
-        This statistical test compares our **full model** (containing all predictor variables like IQ, CGPA, etc.) 
-        against a **null model** (a baseline model that just guesses the average placement rate for everyone). 
-        It effectively answers the question: *"Does our model actually predict anything, or is it just guessing?"*
+        To prove our model works, we use the **Likelihood Ratio (Chi-Squared) Test**. 
+        Think of it as a battle between two competing models:
         """)
         
+        # Create 2 columns for the "Battle" cards
+        c1, c2 = st.columns(2)
+        
+        with c1:
+            # NULL MODEL CARD (Dark Red Theme)
+            st.markdown("""
+            <div style='background: linear-gradient(180deg, #7f1d1d 0%, #450a0a 100%); 
+                        padding: 1.5rem; 
+                        border-radius: 10px; 
+                        border: 1px solid #991b1b;
+                        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+                        height: 100%; text-align: center;'>
+                <h3 style='color: #ffffff; margin: 0; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px;'>
+                    🤖 The Null Model
+                </h3>
+                <p style='color: #fca5a5; font-weight: bold; margin: 10px 0; font-size: 1.1rem;'>
+                    "The Guesser"
+                </p>
+                <p style='color: #e2e8f0; font-size: 0.9rem; line-height: 1.5;'>
+                    A naive model that knows <i>nothing</i> about the students. It simply guesses the average placement rate (16.6%) for everyone.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+        with c2:
+            # FULL MODEL CARD (Dark Blue Theme)
+            st.markdown("""
+            <div style='background: linear-gradient(180deg, #1e3a8a 0%, #172554 100%); 
+                        padding: 1.5rem; 
+                        border-radius: 10px; 
+                        border: 1px solid #1e40af;
+                        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+                        height: 100%; text-align: center;'>
+                <h3 style='color: #ffffff; margin: 0; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px;'>
+                    🧠 The Full Model
+                </h3>
+                <p style='color: #93c5fd; font-weight: bold; margin: 10px 0; font-size: 1.1rem;'>
+                    "The Expert"
+                </p>
+                <p style='color: #e2e8f0; font-size: 0.9rem; line-height: 1.5;'>
+                    Our logistic regression model. It uses IQ, CGPA, and Skills data to make specific, intelligent predictions for each student.
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("**The Test:** We measure how much *better* 'The Expert' is compared to 'The Guesser'.")
         st.markdown("---")
 
+        # [Calculation Code remains exactly the same as before]
         # Calculate likelihood ratio test
-        # Null model (intercept only)
         null_prob = y.mean()
         null_probs = np.full((len(y), 2), [1-null_prob, null_prob])
         
-        # Calculate log-likelihoods
         from sklearn.metrics import log_loss
-        
-        # For full model, we need to get predictions on full dataset
         X_scaled = X.copy()
         model_full = LogisticRegression(max_iter=1000, random_state=42)
         model_full.fit(X_scaled, y)
@@ -427,85 +482,117 @@ def main():
         ll_fitted = -log_loss(y, probs_fitted, normalize=False)
         ll_null = -log_loss(y, null_probs, normalize=False)
         
-        # G-statistic (likelihood ratio test statistic)
         g_statistic = 2 * (ll_fitted - ll_null)
-        df_degrees = X.shape[1]  # number of predictors
+        df_degrees = X.shape[1]
         
-        # Calculate p-value
         from scipy.stats import chi2
         p_value = chi2.sf(g_statistic, df_degrees)
         
-        col1, col2 = st.columns([1, 1])
+        col1, col2 = st.columns([1, 1.2])
         
-        with col1:
-            # 1. Define variables based on p-value
-            if p_value < 0.001:
-                significance_text = "p < 0.001"
-                interpretation = "Highly Significant ✅"
-                bg_color = "#d4edda"
-                border_color = "#28a745"
-                text_color = "#155724"
-            elif p_value < 0.05:
-                significance_text = f"p = {p_value:.4f}"
-                interpretation = "Significant ✅"
-                bg_color = "#d4edda"
-                border_color = "#28a745"
-                text_color = "#155724"
-            else:
-                significance_text = f"p = {p_value:.4f}"
-                interpretation = "Not Significant ❌"
-                bg_color = "#f8d7da"
-                border_color = "#dc3545"
-                text_color = "#721c24"
-            
-            # 2. Build the HTML String separately (Safer)
-            card_html = f"""
-            <div style='background-color: {bg_color}; 
+        # Model Validation - Chi-Squared Test
+        st.markdown("### 📊 Model Validation: Statistical Significance")
+
+        st.markdown("""
+        To prove our model isn't just "getting lucky," we ran a **Likelihood Ratio Test**. 
+        This checks if our predictor variables (Grades, IQ, etc.) actually improve the model compared to a random guess.
+        """)
+
+        # --- CALCULATION BLOCK (Hidden Logic) ---
+        # Null model (intercept only)
+        null_prob = y.mean()
+        null_probs = np.full((len(y), 2), [1-null_prob, null_prob])
+        
+        from sklearn.metrics import log_loss
+        X_scaled = X.copy()
+        model_full = LogisticRegression(max_iter=1000, random_state=42)
+        model_full.fit(X_scaled, y)
+        
+        probs_fitted = model_full.predict_proba(X_scaled)
+        ll_fitted = -log_loss(y, probs_fitted, normalize=False)
+        ll_null = -log_loss(y, null_probs, normalize=False)
+        
+        g_statistic = 2 * (ll_fitted - ll_null)
+        df_degrees = X.shape[1]
+        
+        from scipy.stats import chi2
+        p_value = chi2.sf(g_statistic, df_degrees)
+
+        # Determine Status & Colors
+        if p_value < 0.05:
+            status_title = "✅ TEST PASSED: Model is Reliable"
+            status_color = "#4ade80"  # Bright Green
+            confidence_level = "99.9%" if p_value < 0.001 else f"{(1-p_value)*100:.1f}%"
+            risk_level = "< 0.1%" if p_value < 0.001 else f"{p_value*100:.1f}%"
+            bg_gradient = "linear-gradient(180deg, #064e3b 0%, #022c22 100%)" # Dark Green Gradient
+            border_color = "#059669"
+            message = "Our predictors (IQ, CGPA, Skills) successfully predict placement patterns."
+        else:
+            status_title = "❌ TEST FAILED: Model is Unreliable"
+            status_color = "#f87171"  # Red
+            confidence_level = "Low"
+            risk_level = "High"
+            bg_gradient = "linear-gradient(180deg, #7f1d1d 0%, #450a0a 100%)" # Dark Red Gradient
+            border_color = "#dc2626"
+            message = "The model is no better than random guessing."
+
+        # --- VISUAL DASHBOARD ---
+        st.markdown(f"""
+        <div style='background: {bg_gradient}; 
+                    border-radius: 12px; 
+                    padding: 2px; 
+                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+                    margin-bottom: 2rem;'>
+            <div style='background-color: rgba(0,0,0,0.4); 
+                        border-radius: 10px; 
                         padding: 2rem; 
-                        border-radius: 0.5rem; 
-                        border-left: 5px solid {border_color};
                         text-align: center;
-                        box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
-                <h3 style='color: {text_color}; margin: 0; font-size: 1.4rem;'>
-                    Model Significance Result
-                </h3>
-                <p style='font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0; color: {text_color};'>
-                    {significance_text}
+                        border: 1px solid {border_color};'>
+                <h2 style='color: {status_color}; margin: 0; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 1px;'>
+                    {status_title}
+                </h2>
+                <p style='color: #e2e8f0; margin-top: 10px; font-size: 1.1rem;'>
+                    {message}
                 </p>
-                <p style='font-size: 1.2rem; font-weight: bold; margin-bottom: 1.5rem; color: {text_color};'>
-                    {interpretation}
-                </p>
-                <hr style='border-top: 1px solid {border_color}; opacity: 0.3; margin: 1rem 0;'>
-                <div style='display: flex; justify-content: space-around; color: {text_color};'>
-                    <div>
-                        <span style='font-size: 0.9rem; display: block;'>Chi-Squared (G)</span>
-                        <span style='font-size: 1.2rem; font-weight: bold;'>{g_statistic:.2f}</span>
+                <hr style='border-color: rgba(255,255,255,0.1); margin: 2rem 0;'>
+                <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;'>
+                    <div style='text-align: center;'>
+                        <p style='color: #94a3b8; font-size: 0.9rem; font-weight: bold; text-transform: uppercase; margin-bottom: 5px;'>
+                            Confidence Level
+                        </p>
+                        <p style='color: #ffffff; font-size: 2rem; font-weight: 800; margin: 0;'>
+                            {confidence_level}
+                        </p>
+                        <p style='color: #64748b; font-size: 0.8rem; margin-top: 5px;'>
+                            Certainty that this isn't luck
+                        </p>
                     </div>
-                    <div>
-                        <span style='font-size: 0.9rem; display: block;'>Degrees of Freedom</span>
-                        <span style='font-size: 1.2rem; font-weight: bold;'>{df_degrees}</span>
+                    <div style='text-align: center; border-left: 1px solid rgba(255,255,255,0.1); border-right: 1px solid rgba(255,255,255,0.1);'>
+                        <p style='color: #94a3b8; font-size: 0.9rem; font-weight: bold; text-transform: uppercase; margin-bottom: 5px;'>
+                            Improvement Score
+                        </p>
+                        <p style='color: #ffffff; font-size: 2rem; font-weight: 800; margin: 0;'>
+                            {g_statistic:.1f}
+                        </p>
+                        <p style='color: #64748b; font-size: 0.8rem; margin-top: 5px;'>
+                            Chi-Squared (G) Statistic
+                        </p>
+                    </div>
+                    <div style='text-align: center;'>
+                        <p style='color: #94a3b8; font-size: 0.9rem; font-weight: bold; text-transform: uppercase; margin-bottom: 5px;'>
+                            Risk of Error
+                        </p>
+                        <p style='color: {status_color}; font-size: 2rem; font-weight: 800; margin: 0;'>
+                            {risk_level}
+                        </p>
+                        <p style='color: #64748b; font-size: 0.8rem; margin-top: 5px;'>
+                            Chance of Fluke (P-Value)
+                        </p>
                     </div>
                 </div>
             </div>
-            """
-            
-            # 3. Render the HTML
-            st.markdown(card_html, unsafe_allow_html=True)
-        
-        with col2:
-            st.markdown("### 💡 Interpretation")
-            
-            st.info(f"""
-            With a p-value of **{significance_text}**, we can conclude with **>99.9% confidence** that our predictor variables 
-            (IQ, CGPA, Communication Skills, etc.) significantly improve prediction compared to random guessing.
-            """)
-            
-            st.markdown("""
-            **What This Means for Our Project:**
-            - ✅ **Validity:** Our findings are not due to random chance.
-            - ✅ **Reliability:** The relationships we identify (like Communication Skills being important) are statistically real.
-            - ✅ **Utility:** The model is a valid tool for making predictions on new students.
-            """)
+        </div>
+        """, unsafe_allow_html=True)
         
         st.markdown("---")
         
