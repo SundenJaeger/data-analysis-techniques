@@ -812,14 +812,141 @@ def main():
         # TODO: Add analysis and findings content
         st.write("Analysis and findings content goes here...")
     
-    # ============================================================================
-    # SECTION 4: CONCLUSIONS & RECOMMENDATIONS
+   # ============================================================================
+    # SECTION 5: CONCLUSIONS & RECOMMENDATIONS
     # ============================================================================
     elif section == "Conclusions & Recommendations":
-        st.markdown('<h2 class="section-header">🎊 Conclusions & Recommendations</h2>', unsafe_allow_html=True)
+        st.markdown('<h2 class="section-header">🎯 Conclusions & Recommendations</h2>', unsafe_allow_html=True)
+
+        # Main Takeaways
+        st.markdown("### 📌 Main Takeaways")
+
+        st.success("""
+        **Our logistic regression analysis reveals a clear hierarchy of success: Communication Skills and CGPA 
+        are the dominant drivers of placement, while extracurricular activities have surprisingly little impact.**
+        """)
+
+        # Key Findings (Removed Statistical Validation Tab)
+        st.markdown("### 🔑 Key Findings")
+
+        tab1, tab2, tab3 = st.tabs(["Model Performance", "Success Factors", "Surprising Insights"])
+
+        with tab1:
+            st.markdown("""
+            #### 🎯 Model Performance
+            
+            Our model is highly reliable for identifying students at risk:
+            
+            | Metric | Value | Interpretation |
+            |--------|-------|----------------|
+            | **Overall Accuracy** | 90% | 9 out of 10 predictions are correct |
+            | **ROC-AUC Score** | 0.94 | Excellent ability to distinguish placed vs. not placed |
+            | **Precision (Not Placed)** | 93% | Extremely reliable when predicting "failure" |
+            
+            *The high precision means if the model says you are at risk, you should take it seriously.*
+            """)
+            
+            # Simplified chart
+            fig, ax = plt.subplots(figsize=(8, 4))
+            metrics = ['Accuracy', 'ROC-AUC', 'Precision (Not Placed)']
+            values = [0.90, 0.94, 0.93]
+            ax.bar(metrics, values, color='#1f77b4', alpha=0.7)
+            ax.set_ylim([0, 1])
+            for i, v in enumerate(values):
+                ax.text(i, v + 0.05, f'{v:.2f}', ha='center', fontweight='bold')
+            ax.set_title('Key Performance Metrics')
+            st.pyplot(fig)
+            plt.close()
+
+        with tab2:
+            st.markdown("""
+            #### 🌟 What Actually Matters (Odds Ratios)
+            
+            **1. 🗣️ Communication Skills (6.4x)**
+            - The #1 predictor. Improving this is the single best use of your time.
+            
+            **2. 📚 CGPA (5.4x)**
+            - Grades are the foundation. Consistency signals reliability to employers.
+            
+            **3. 🧠 IQ (5.0x)**
+            - Problem-solving ability is crucial.
+            
+            **4. 💼 Projects (3.2x)**
+            - Practical experience is valuable, though less than grades.
+            """)
+
+        with tab3:
+            st.markdown("""
+            #### 🤔 Myth-Busters
+            
+            **Myth:** "You need to join every club to get a job."
+            **Reality:** Extra-curriculars had an odds ratio of **0.97 (Neutral)**. They don't hurt, but they don't help placement directly.
+            
+            **Myth:** "Internships guarantee placement."
+            **Reality:** Internships had an odds ratio of **1.1**. They help slightly, but aren't a magic bullet compared to strong communication skills.
+            """)
+
+        # Actionable Recommendations (Student Focus Only)
+        st.markdown("### 🎓 Recommendations for Students")
         
-        # TODO: Add conclusions and recommendations content
-        st.write("Conclusions and recommendations content goes here...")
+        st.info("""
+        Based on the data, here is your "Bare Bones" checklist for success:
+        """)
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.markdown("""
+            **🚀 DO THIS (High Impact)**
+            
+            * **Prioritize Communication:** Take public speaking classes, join Toastmasters, or practice mock interviews. This has the highest ROI (6.4x).
+            * **Protect your CGPA:** Aim for 8.0+. Don't sacrifice study time for clubs.
+            * **Build 2-3 Solid Projects:** Quality over quantity. Use them to demonstrate practical skills.
+            """)
+
+        with col2:
+            st.markdown("""
+            **⚠️ DON'T STRESS THIS (Low Impact)**
+            
+            * **Extracurricular Quantity:** Joining 5 clubs won't increase your placement odds statistically. Do what you enjoy, but don't do it just for the resume.
+            * **Perfecting "Academic Performance" Score:** Focus on the actual CGPA instead of subjective performance ratings.
+            """)
+
+        # Final Summary
+        st.markdown("### 🎊 Conclusion")
+
+        st.success("""
+        **The Data Speaks:** Success isn't about doing *everything*. It's about doing the *right* things.
+        
+        An articulate student with good grades (Communication + CGPA) will beat a busy student with a cluttered resume every time. 
+        Focus on your voice and your grades, and the placement will follow.
+        """)
+
+        # Download options
+        st.markdown("### 📥 Download Resources")
+        
+        # Simplified Summary Report
+        summary_text = f"""
+STUDENT PLACEMENT GUIDE - KEY TAKEAWAYS
+
+TOP PRIORITIES (High Impact):
+1. Communication Skills (6.4x odds) - The most critical factor.
+2. CGPA (5.4x odds) - Academic consistency is key.
+3. IQ/Aptitude (5.0x odds) - Practice problem solving.
+
+LOWER PRIORITIES (Neutral Impact):
+- Extra-curricular activities (0.97x odds)
+- Internship Experience (1.1x odds)
+
+VERDICT:
+Focus on being articulate and maintaining good grades. Don't over-schedule yourself with clubs.
+"""
+        st.download_button(
+            label="📄 Download Student Guide",
+            data=summary_text,
+            file_name="student_success_guide.txt",
+            mime="text/plain"
+        )
     
     # Footer
     st.markdown("---")
