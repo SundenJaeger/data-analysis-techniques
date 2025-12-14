@@ -127,6 +127,20 @@ st.markdown("""
         font-weight: 600; /* Bold only when selected */
         font-size: 0.95rem; /* Keep size consistent */
     }
+<<<<<<< HEAD
+=======
+            .sidebar-btn {
+    width: 100%;
+    margin-bottom: 0.4rem;
+}
+.breadcrumb {
+    font-size: 0.9rem;
+    color: gray;
+    margin-bottom: 1rem;
+}
+
+    </style>
+>>>>>>> 36ba416 (Refactor navigation and fix section rendering)
 """, unsafe_allow_html=True)
 
 # Load and cache data
@@ -182,6 +196,7 @@ def train_model(X, y):
 def main():
     # Title
     st.markdown('<h1 class="main-header">🎓 College Student Placement Analysis</h1>', unsafe_allow_html=True)
+<<<<<<< HEAD
     
     # Sidebar navigation# Sidebar Header
     st.sidebar.markdown("""
@@ -204,6 +219,52 @@ def main():
     
     # Train model
     model, X_test, y_test, y_pred, y_pred_proba, accuracy, conf_matrix, auc_score, fpr, tpr, coefficients, odds_ratios = train_model(X, y)
+=======
+
+    # =============================================================================
+    # NAVIGATION STATE
+    # =============================================================================
+    SECTIONS = [
+        "Overview",
+        "Data Exploration",
+        "Analysis & Insights",
+        "Interactive Predictor",
+        "Conclusions"
+    ]
+
+    if "section" not in st.session_state:
+        st.session_state.section = "Overview"
+
+    def go(section):
+        st.session_state.section = section
+
+    # =============================================================================
+    # SIDEBAR NAVIGATION (UX IMPROVED)
+    # =============================================================================
+    st.sidebar.title("📊 Navigation")
+
+    with st.sidebar.expander("📘 Introduction", expanded=True):
+        st.button("🏠 Overview", on_click=go, args=("Overview",), use_container_width=True)
+
+    with st.sidebar.expander("🔬 Analysis"):
+        st.button("🔍 Data Exploration", on_click=go, args=("Data Exploration & Preparation",), use_container_width=True)
+        st.button("📈 Analysis & Insights", on_click=go, args=("Analysis & Insights",), use_container_width=True)
+
+    with st.sidebar.expander("🎮 Tools"):
+        st.button("🎯 Interactive Predictor", on_click=go, args=("Interactive Predictor",), use_container_width=True)
+
+    with st.sidebar.expander("📌 Final"):
+        st.button("🏁 Conclusions", on_click=go, args=("Conclusions & Recommendations",), use_container_width=True)
+
+    section = st.session_state.section
+
+    # =============================================================================
+    # LOAD + TRAIN
+    # =============================================================================
+    df = load_data()
+    X, y, df_model = prepare_data(df)
+    model, X_test, y_test, y_pred,y_proba, accuracy, conf_matrix, auc_score, fpr, tpr, coefficients, odds_ratios = train_model(X, y)
+>>>>>>> 36ba416 (Refactor navigation and fix section rendering)
 
     # ============================================================================
     # SECTION 1: OVERVIEW

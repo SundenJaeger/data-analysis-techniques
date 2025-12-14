@@ -1,5 +1,5 @@
 {
     "python.analysis.autoImportCompletions": false,
     "C_Cpp.copilotHover": "disabled",
-    "chat.disableAIFeatures": true
+    "chat.disableAIFeatures": false
 }
