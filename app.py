@@ -203,9 +203,9 @@ def main():
         
         with col1:
             # Pie Chart
-            fig, ax = plt.subplots(figsize=(3, 2))  # Keep your small size
+            fig, ax = plt.subplots(figsize=(2, 2))  # Keep your small size
             placement_counts = df['Placement'].value_counts()
-            colors = ["#0800ff", "#38be16"]
+            colors = ["#6b66ff", "#38be16"]
             explode = (0.05, 0.05)
             
             wedges, texts, autotexts = ax.pie(
@@ -217,10 +217,6 @@ def main():
                 explode=explode,
                 textprops={'fontsize': 6, 'fontweight': 'bold'}
             )
-            
-            ax.set_title('Placement Distribution', 
-                        fontsize=8, fontweight='bold', pad=10)
-            
             plt.tight_layout()
             
             # This is the key change: set use_container_width=False
