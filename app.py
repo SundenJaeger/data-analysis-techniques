@@ -897,30 +897,74 @@ def main():
         st.success("✅ **Pipeline Complete:** The dataset has been cleaned, encoded, and split. It is now ready for Logistic Regression.")
 
 
-        # Outlier Analysis
-        st.markdown("#### Outlier Detection & Treatment")
-
-        st.info("""
-        **IQR (Interquartile Range) Method Used:**
-        - Detected 249 CGPA values > 10.0 → Capped at 10.0
-        - Detected 61 IQ outliers (beyond 1.5×IQR) → Kept as valid extreme values
-        - All other features showed no significant outliers
-        """)
-
-        # Visualize outliers
+        # Outlier Analysis Visualization
+        st.markdown("### 📊 Outlier Detection Visualization")
+        
         outlier_feature = st.selectbox(
-            "Select feature to visualize outlier detection:",
+            "Select feature to visualize outliers:",
             ['IQ', 'CGPA', 'Communication_Skills', 'Projects_Completed']
         )
 
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+        # 1. Reduced Figure Size (11, 4)
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4))
+        
+        # 2. Set Dark Theme Backgrounds
+        fig.patch.set_facecolor('#0f172a') # Match sidebar dark blue
+        ax1.set_facecolor('#1e293b')       # Slightly lighter plot area
+        ax2.set_facecolor('#1e293b')
 
-        # Box plot
-        ax1.boxplot(df[outlier_feature].dropna(), vert=True)
-        ax1.set_ylabel(outlier_feature, fontsize=12)
-        ax1.set_title(f'{outlier_feature} - Box Plot (Outlier Detection)',
-                      fontsize=12, fontweight='bold')
-        ax1.grid(True, alpha=0.3)
+        # --- Plot 1: Styled Box Plot ---
+        # Use dictionary props to color specific elements according to theme
+        boxplots = ax1.boxplot(
+            df[outlier_feature].dropna(), 
+            vert=True, 
+            patch_artist=True,
+            boxprops=dict(facecolor='#1e3a8a', color='#3b82f6', linewidth=1.5), # Dark blue fill, bright blue line
+            capprops=dict(color='#3b82f6', linewidth=1.5),
+            whiskerprops=dict(color='#3b82f6', linewidth=1.5),
+            flierprops=dict(markerfacecolor='#22c55e', marker='o', markersize=6, markeredgecolor='#0f172a'), # Green outliers
+            medianprops=dict(color='#22c55e', linewidth=2.5) # Green median line
+        )
+        
+        # Style text and grid for dark theme
+        ax1.set_ylabel(outlier_feature, fontsize=10, color='white')
+        ax1.set_title(f'{outlier_feature} - Box Plot', fontsize=12, fontweight='bold', color='white')
+        ax1.grid(True, color='white', alpha=0.1)
+        ax1.tick_params(axis='x', colors='white')
+        ax1.tick_params(axis='y', colors='white')
+
+        # --- Plot 2: Styled Histogram ---
+        # Calculate IQR bounds for lines
+        Q1 = df[outlier_feature].quantile(0.25)
+        Q3 = df[outlier_feature].quantile(0.75)
+        IQR = Q3 - Q1
+        lower_bound = Q1 - 1.5 * IQR
+        upper_bound = Q3 + 1.5 * IQR
+
+        # Histogram with theme blue
+        ax2.hist(df[outlier_feature].dropna(), bins=40, color='#3b82f6', edgecolor='#1e293b', alpha=0.8)
+        
+        # Threshold lines with theme green
+        ax2.axvline(x=lower_bound, color='#22c55e', linestyle='--', linewidth=2, label='Outlier Threshold')
+        ax2.axvline(x=upper_bound, color='#22c55e', linestyle='--', linewidth=2)
+        
+        # Style text, grid, and legend for dark theme
+        ax2.set_title(f'{outlier_feature} - Distribution', fontsize=12, fontweight='bold', color='white')
+        ax2.set_xlabel(outlier_feature, color='white')
+        ax2.set_ylabel('Frequency', color='white')
+        ax2.grid(True, color='white', alpha=0.1)
+        ax2.tick_params(axis='x', colors='white')
+        ax2.tick_params(axis='y', colors='white')
+        
+        # Legend styling
+        legend = ax2.legend(facecolor='#1e293b', edgecolor='#3b82f6')
+        plt.setp(legend.get_texts(), color='white')
+
+        plt.tight_layout()
+        # Use transparent background when rendering to Streamlit so it blends perfectly
+        st.pyplot(fig, transparent=True) 
+        plt.close()
+
 
         # Calculate IQR bounds
         Q1 = df[outlier_feature].quantile(0.25)
@@ -936,18 +980,6 @@ def main():
                     label=f'Upper Bound: {upper_bound:.2f}')
         ax1.legend()
 
-        # Histogram with outlier regions
-        ax2.hist(df[outlier_feature].dropna(), bins=50, color='skyblue',
-                 edgecolor='black', alpha=0.7)
-        ax2.axvline(x=lower_bound, color='r', linestyle='--', linewidth=2,
-                    label='Outlier Threshold')
-        ax2.axvline(x=upper_bound, color='r', linestyle='--', linewidth=2)
-        ax2.set_xlabel(outlier_feature, fontsize=12)
-        ax2.set_ylabel('Frequency', fontsize=12)
-        ax2.set_title(f'{outlier_feature} - Distribution',
-                      fontsize=12, fontweight='bold')
-        ax2.legend()
-        ax2.grid(True, alpha=0.3)
 
         plt.tight_layout()
         st.pyplot(fig)
@@ -1043,6 +1075,34 @@ def main():
                 help="Average for not placed students"
             )
 
+        # [This goes right after the col1, col2, col3 metrics block]
+        
+        # Calculate the gap between Placed and Not Placed
+        placed_mean = df[df['Placement'] == 'Yes'][selected_feature].mean()
+        not_placed_mean = df[df['Placement'] == 'No'][selected_feature].mean()
+        diff = placed_mean - not_placed_mean
+        
+        # Dynamic Interpretation Logic
+        if abs(diff) > 1.0: # Threshold for "Strong" difference
+            impact_level = "Strong Predictor 🚀"
+            desc = "There is a massive gap between the two groups. This feature is likely a critical factor for placement."
+        elif abs(diff) > 0.5:
+            impact_level = "Moderate Predictor ⚖️"
+            desc = "There is a noticeable difference, but the groups overlap significantly."
+        else:
+            impact_level = "Weak/Neutral Predictor 😐"
+            desc = "The two groups look almost identical. This feature likely does not decide placement."
+
+        st.markdown(f"""
+        <div style='background-color: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6; margin-top: 15px;'>
+            <h4 style='margin:0; color: #60a5fa;'>💡 Interpretation: {impact_level}</h4>
+            <p style='margin: 5px 0 0 0; font-size: 0.95rem; color: #e2e8f0;'>
+                On average, placed students score <b>{diff:+.2f} points</b> higher than not placed students. 
+                {desc}
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
         # Correlation Heatmap
         st.markdown("#### Correlation Heatmap")
 
@@ -1058,39 +1118,6 @@ def main():
         plt.tight_layout()
         st.pyplot(fig)
         plt.close()
-
-        # Placement Distribution
-        st.markdown("### 🎯 Target Variable Distribution")
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-            # Pie chart
-            fig, ax = plt.subplots(figsize=(8, 6))
-            placement_counts = df['Placement'].value_counts()
-            colors = ['#ff6b6b', '#51cf66']
-            ax.pie(placement_counts, labels=placement_counts.index, autopct='%1.1f%%',
-                   colors=colors, startangle=90, textprops={'fontsize': 12})
-            ax.set_title('Placement Distribution', fontsize=14, fontweight='bold')
-            st.pyplot(fig)
-            plt.close()
-
-        with col2:
-            # Bar chart
-            fig, ax = plt.subplots(figsize=(8, 6))
-            placement_counts.plot(kind='bar', color=colors, ax=ax)
-            ax.set_title('Placement Counts', fontsize=14, fontweight='bold')
-            ax.set_xlabel('Placement Status')
-            ax.set_ylabel('Count')
-            ax.set_xticklabels(ax.get_xticklabels(), rotation=0)
-
-            # Add value labels on bars
-            for i, v in enumerate(placement_counts):
-                ax.text(i, v + 50, str(v), ha='center', va='bottom', fontweight='bold')
-
-            plt.tight_layout()
-            st.pyplot(fig)
-            plt.close()
 
         # Box plots
         st.markdown("#### Box Plots: Feature Comparison by Placement")
