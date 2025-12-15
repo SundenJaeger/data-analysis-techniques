@@ -219,12 +219,17 @@ def main():
         """)
         
         # The Dataset
-        st.markdown("### The Dataset")
+        st.markdown("### College Student Placement Factors")
         
         # 1. Introduction Text
         st.markdown("""
-        We **analyzed** the **'College Student Placement Factors'** dataset to determine exactly what drives student success.This dataset **contained** comprehensive information about student profiles, including their academic records, 
-        technical experience, and placement outcomes.
+        This comprehensive dataset contains detailed information about **10,000 student profiles**, including their:
+- **Academic records** (CGPA, semester results, academic performance)
+- **Cognitive abilities** (IQ scores)
+- **Soft skills** (Communication ratings)  
+- **Technical experience** (Projects completed, internships)
+- **Extra-curricular activities** (Involvement scores)
+
         """)
         
         st.markdown("<br>", unsafe_allow_html=True) # Add breathing room
@@ -392,7 +397,7 @@ def main():
             st.markdown(custom_card(
                 title="1. Binary Target",
                 subtitle="The 'Yes/No' Reality",
-                text="Our goal is to predict a clear outcome: <b>Placed</b> or <b>Not Placed</b>. <br><br>Linear regression predicts continuous numbers (like salary), which fails for a binary question. Logistic regression is purpose-built for this classification."
+                text="Our goal is to predict a clear outcome: <b>Placed</b> or <b>Not Placed</b>. <br><br>     Logistic Regression is the ideal tool for this binary classification problem."
             ), unsafe_allow_html=True)
             
         with col2:
@@ -1848,105 +1853,173 @@ def main():
         plt.tight_layout()
         st.pyplot(fig)
         plt.close()
-    # ============================================================================
-    # SECTION 4: CONCLUSIONS & RECOMMENDATIONS
+   # ============================================================================
+    # SECTION 4: CONCLUSIONS & RECOMMENDATIONS (REVAMPED)
     # ============================================================================
     elif section == "Conclusions & Recommendations":
         st.markdown('<h2 class="section-header">🎯 Conclusions & Recommendations</h2>', unsafe_allow_html=True)
 
-        # Main Takeaways
-        st.markdown("### 📌 Main Takeaways")
+        st.markdown("### 📌 Summary of Findings")
 
         st.success("""
-        **Our logistic regression analysis reveals a clear hierarchy of success: Communication Skills and CGPA 
-        are the dominant drivers of placement, while extracurricular activities have surprisingly little impact.**
+        **Our data confirms that placement success is not random.** The Logistic Regression model identifies **Communication Skills** and **CGPA** as the dominant, high-impact drivers, providing a clear roadmap for intervention.
         """)
 
-        # Key Findings (Removed Statistical Validation Tab)
-        st.markdown("### 🔑 Key Findings")
+        # --- Tab Section ---
+        tab1, tab2, tab3 = st.tabs(["📊 Model Significance", "📈 Success Factors (Odds Ratio)", "💡 Actionable Insights"])
 
-        tab1, tab2, tab3 = st.tabs(["Model Performance", "Success Factors", "Surprising Insights"])
-
+        # =======================================================================
+        # TAB 1: MODEL SIGNIFICANCE (Metric Visual)
+        # =======================================================================
         with tab1:
+            st.markdown("#### 🚀 Predictive Power: Why These Metrics Matter")
+            
             st.markdown("""
-            #### 🎯 Model Performance
-            
-            Our model is highly reliable for identifying students at risk:
-            
-            | Metric | Value | Interpretation |
-            |--------|-------|----------------|
-            | **Overall Accuracy** | 90% | 9 out of 10 predictions are correct |
-            | **ROC-AUC Score** | 0.94 | Excellent ability to distinguish placed vs. not placed |
-            | **Precision (Not Placed)** | 93% | Extremely reliable when predicting "failure" |
-            
-            *The high precision means if the model says you are at risk, you should take it seriously.*
+            Our model is not just accurate; it is **reliably directional**, offering a strong signal for timely intervention with students who are genuinely at risk.
             """)
-            
-            # Simplified chart
-            fig, ax = plt.subplots(figsize=(8, 4))
-            metrics = ['Accuracy', 'ROC-AUC', 'Precision (Not Placed)']
-            values = [0.90, 0.94, 0.93]
-            ax.bar(metrics, values, color='#1f77b4', alpha=0.7)
-            ax.set_ylim([0, 1])
-            for i, v in enumerate(values):
-                ax.text(i, v + 0.05, f'{v:.2f}', ha='center', fontweight='bold')
-            ax.set_title('Key Performance Metrics')
-            st.pyplot(fig)
-            plt.close()
 
+            col_met1, col_met2, col_met3 = st.columns(3)
+            
+            # Metric Card 1: Accuracy
+            col_met1.metric(
+                label="Overall Accuracy",
+                value="90%",
+                delta="Correct 9 out of 10 times"
+            )
+
+            # Metric Card 2: ROC-AUC
+            col_met2.metric(
+                label="Separation Power (ROC-AUC)",
+                value="0.94",
+                delta="Excellent ability to distinguish outcomes"
+            )
+
+            # Metric Card 3: Precision (Most Critical)
+            col_met3.metric(
+                label="Trusted Warning (Precision for 'Not Placed')",
+                value="93%",
+                delta="Minimizes False Alarms"
+            )
+
+            st.markdown("""
+            <br>
+            <p style='font-size: 1rem; color: #9ca3af;'>
+            The **93% Precision** is key: When the model flags a student as "at risk," faculty can be 
+            highly confident (93% sure) that intervention efforts will be directed where they are needed most.
+            </p>
+            """, unsafe_allow_html=True)
+
+        # =======================================================================
+        # TAB 2: SUCCESS FACTORS (Interactive Odds Ratio)
+        # =======================================================================
         with tab2:
-            st.markdown("""
-            #### 🌟 What Actually Matters (Odds Ratios)
-            
-            **1. 🗣️ Communication Skills (6.4x)**
-            - The #1 predictor. Improving this is the single best use of your time.
-            
-            **2. 📚 CGPA (5.4x)**
-            - Grades are the foundation. Consistency signals reliability to employers.
-            
-            **3. 🧠 IQ (5.0x)**
-            - Problem-solving ability is crucial.
-            
-            **4. 💼 Projects (3.2x)**
-            - Practical experience is valuable, though less than grades.
-            """)
+            st.markdown("#### 🌟 Feature Impact: Interpreting the Odds Ratio")
 
+            # Define Data
+            odds_data = {
+                'Communication Skills': 6.4,
+                'CGPA': 5.4,
+                'IQ (Aptitude)': 5.0,
+                'Projects Completed': 3.2,
+                'Internship Experience': 1.1,
+                'Extra-Curricular Score': 0.97
+            }
+            
+            # Sort factors for presentation
+            sorted_factors = sorted(odds_data.items(), key=lambda item: item[1], reverse=True)
+            factor_names = [f"{name} ({odds:.2f}x)" for name, odds in sorted_factors]
+            
+            # Create Selectbox
+            selected_factor = st.selectbox(
+                "Select a key feature to understand its impact:",
+                factor_names,
+                key='odds_selector'
+            )
+
+            # Get the actual odds ratio and name
+            selected_name = selected_factor.split('(')[0].strip()
+            selected_odds = odds_data[selected_name]
+
+            # Custom Interpretation Logic
+            if selected_odds > 5.0:
+                interpretation_color = '#51cf66' # Green for high impact
+                interpretation_text = f"This is a **High-Impact Driver**. A one-unit increase in *{selected_name}* increases a student's placement odds by **{selected_odds:.1f} times**. This is where intervention should be prioritized."
+            elif selected_odds > 1.5:
+                interpretation_color = '#93c5fd' # Blue for moderate impact
+                interpretation_text = f"This is a **Moderate-Impact Factor**. A one-unit increase in *{selected_name}* increases placement odds by **{selected_odds:.1f} times**. Still very valuable, but secondary to the top drivers."
+            else:
+                interpretation_color = '#ffc107' # Yellow/Orange for low impact
+                interpretation_text = f"This is a **Low/Neutral Impact Factor**. The odds ratio is close to 1.0, meaning *{selected_name}* provides **minimal statistical advantage** (only {selected_odds:.2f} times). Students should not over-invest time here."
+
+            st.markdown(f"""
+            <div style="background-color: #1e293b; padding: 15px; border-radius: 8px; border-left: 5px solid {interpretation_color}; color: white;">
+                <h4 style="margin-top: 0; color: {interpretation_color};">{selected_name}</h4>
+                <p style="font-size: 1.1rem;">{interpretation_text}</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            st.markdown('<br>')
+            st.markdown('***Myth-Buster:*** *Extra-curriculars had an odds ratio of **0.97x**. Any factor below 1.0 actually **reduces** the odds, confirming this is a resume-padding activity with no actual statistical benefit.*')
+
+        # =======================================================================
+        # TAB 3: ACTIONABLE INSIGHTS (Metric Cards)
+        # =======================================================================
         with tab3:
-            st.markdown("""
-            #### 🤔 Myth-Busters
+            st.markdown("#### 💡 Action Plan: Student & Faculty Priorities")
             
-            **Myth:** "You need to join every club to get a job."
-            **Reality:** Extra-curriculars had an odds ratio of **0.97 (Neutral)**. They don't hurt, but they don't help placement directly.
+            st.info("The data provides a **Bare Bones Checklist** for maximizing placement odds.")
             
-            **Myth:** "Internships guarantee placement."
-            **Reality:** Internships had an odds ratio of **1.1**. They help slightly, but aren't a magic bullet compared to strong communication skills.
-            """)
-
-        # Actionable Recommendations (Student Focus Only)
-        st.markdown("### 🎓 Recommendations for Students")
-        
-        st.info("""
-        Based on the data, here is your "Bare Bones" checklist for success:
-        """)
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-            st.markdown("""
-            **🚀 DO THIS (High Impact)**
+            col_do1, col_do2, col_do3 = st.columns(3)
             
-            * **Prioritize Communication:** Take public speaking classes, join Toastmasters, or practice mock interviews. This has the highest ROI (6.4x).
-            * **Protect your CGPA:** Aim for 8.0+. Don't sacrifice study time for clubs.
-            * **Build 2-3 Solid Projects:** Quality over quantity. Use them to demonstrate practical skills.
-            """)
+            # DO 1: Communication
+            with col_do1:
+                st.success("🗣️ **DO: Prioritize Communication**")
+                st.markdown("""
+                <div style='font-size: 0.9rem;'>
+                The **6.4x** ROI means public speaking, Toastmasters, and mock interviews are mandatory.
+                </div>
+                """, unsafe_allow_html=True)
 
-        with col2:
-            st.markdown("""
-            **⚠️ DON'T STRESS THIS (Low Impact)**
+            # DO 2: CGPA
+            with col_do2:
+                st.success("📚 **DO: Protect Your CGPA**")
+                st.markdown("""
+                <div style='font-size: 0.9rem;'>
+                The **5.4x** factor makes grades the foundation. Avoid sacrificing study time for low-impact activities.
+                </div>
+                """, unsafe_allow_html=True)
+
+            # DO 3: Projects
+            with col_do3:
+                st.success("💼 **DO: Build Quality Projects**")
+                st.markdown("""
+                <div style='font-size: 0.9rem;'>
+                Demonstrate practical skills with 2-3 complex projects (3.2x factor). Quality over quantity.
+                </div>
+                """, unsafe_allow_html=True)
+                
+            st.markdown("---")
+
+            col_dont1, col_dont2 = st.columns(2)
             
-            * **Extracurricular Quantity:** Joining 5 clubs won't increase your placement odds statistically. Do what you enjoy, but don't do it just for the resume.
-            * **Perfecting "Academic Performance" Score:** Focus on the actual CGPA instead of subjective performance ratings.
-            """)
+            # DON'T 1: Extracurriculars
+            with col_dont1:
+                st.warning("❌ **DON'T: Stress Extracurricular Quantity**")
+                st.markdown("""
+                <div style='font-size: 0.9rem;'>
+                With a **0.97x** factor, clubs offer no statistical benefit. Do what you enjoy, but not for placement.
+                </div>
+                """, unsafe_allow_html=True)
+
+            # DON'T 2: Internships
+            with col_dont2:
+                st.warning("❌ **DON'T: Rely on Internships Alone**")
+                st.markdown("""
+                <div style='font-size: 0.9rem;'>
+                The **1.1x** factor shows they help only slightly. They are NOT a substitute for strong core skills.
+                </div>
+                """, unsafe_allow_html=True)
+
 
         # Final Summary
         st.markdown("### 🎊 Conclusion")
@@ -1966,16 +2039,16 @@ def main():
 STUDENT PLACEMENT GUIDE - KEY TAKEAWAYS
 
 TOP PRIORITIES (High Impact):
-1. Communication Skills (6.4x odds) - The most critical factor.
-2. CGPA (5.4x odds) - Academic consistency is key.
-3. IQ/Aptitude (5.0x odds) - Practice problem solving.
+1. Communication Skills (Odds Ratio: 6.4) - The most critical factor.
+2. CGPA (Odds Ratio: 5.4) - Academic consistency is key.
+3. IQ/Aptitude (Odds Ratio: 5.0) - Practice problem solving.
 
-LOWER PRIORITIES (Neutral Impact):
-- Extra-curricular activities (0.97x odds)
-- Internship Experience (1.1x odds)
+LOWER PRIORITIES (Neutral/Low Impact):
+- Internship Experience (Odds Ratio: 1.1)
+- Extra-curricular activities (Odds Ratio: 0.97)
 
 VERDICT:
-Focus on being articulate and maintaining good grades. Don't over-schedule yourself with clubs.
+Focus on being articulate and maintaining good grades. Don't over-schedule yourself with low-impact activities.
 """
         st.download_button(
             label="📄 Download Student Guide",
@@ -1983,6 +2056,16 @@ Focus on being articulate and maintaining good grades. Don't over-schedule yours
             file_name="student_success_guide.txt",
             mime="text/plain"
         )
+    
+    # Footer
+    st.markdown("---")
+    st.markdown("""
+        <div style='text-align: center; color: gray; padding: 2rem;'>
+            <p><strong>College Student Placement Analysis</strong></p>
+            <p>Final Project: Data Analysis Techniques</p>
+            <p>Powered by Logistic Regression | Streamlit Application</p>
+        </div>
+    """, unsafe_allow_html=True)
     
     # Footer
     st.markdown("---")
