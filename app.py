@@ -1311,23 +1311,18 @@ def main():
             #### 1. 🗣️ Communication Skills (Odds Ratio: 6.4x)
             - **The #1 predictor of placement success**
             - Each 1-point increase in communication skills makes a student **6.4 times more likely** to get placed
-            - More important than grades or IQ!
-            - **Recommendation:** Universities should prioritize communication training programs
 
             #### 2. 📚 CGPA (Odds Ratio: 5.4x)
             - Strong academic performance significantly increases placement odds
             - Each additional CGPA point makes placement **5.4 times more likely**
-            - Shows employers value consistent academic excellence
-
+            
             #### 3. 🧠 IQ (Odds Ratio: 5.0x)
             - Intelligence quotient is a strong predictor
             - Higher IQ correlates with **5 times better** placement odds
-            - May reflect problem-solving abilities valued by employers
 
             #### 4. 💼 Projects Completed (Odds Ratio: 3.2x)
             - Practical experience matters!
             - Each additional project completed increases odds by **3.2 times**
-            - Shows initiative and hands-on skills
             """)
 
         # Insight 2: Surprisingly Neutral Factors
@@ -1335,175 +1330,11 @@ def main():
             st.markdown("""
             #### Extra-Curricular Score & Academic Performance (Odds Ratio: ~0.97)
 
-            **The Shocking Truth:**
             - These factors had **almost no effect** on placement outcomes
             - Odds ratio of 0.97 means they're essentially neutral (1.0 = no effect)
-            - Contradicts common belief that extracurriculars are crucial
 
             **Why This Matters:**
-            - Suggests employers prioritize skills over activities
-            - Students shouldn't sacrifice academics or skill development for clubs
-            - Universities may be overemphasizing extracurricular participation
-
-            **Other Neutral Factors:**
-            - **Internship Experience:** Only 1.1x odds (barely above neutral)
-            - **Previous Semester Result:** 1.1x odds (CGPA is more important)
-
-            **The Takeaway:**
-            Focus your energy on communication skills and maintaining strong grades, 
-            not on padding your resume with activities that don't directly impact placement.
-            """)
-
-        # Insight 3: Model Reliability
-        with st.expander("📊 **Model Reliability & Statistical Validation**", expanded=False):
-            st.markdown(f"""
-            #### Our model is highly reliable and statistically sound:
-
-            **Performance Metrics:**
-            - ✅ **90% Overall Accuracy** - 9 out of 10 predictions are correct
-            - ✅ **0.94 ROC-AUC Score** - Excellent discrimination ability (close to perfect 1.0)
-            - ✅ **93% Precision for "Not Placed"** - Very reliable at identifying at-risk students
-            - ✅ **61% Recall for "Placed"** - Conservative predictions (reduces false hope)
-
-            **Statistical Significance:**
-            - **Chi-squared test confirmed:** p < 0.05 (statistically significant)
-            - The relationships we found are **real**, not due to chance
-            - Model generalizes well to new, unseen students
-
-            **What This Means:**
-            - You can trust these findings to make important decisions
-            - The model is ready for deployment in university settings
-            - Results are reproducible and scientifically valid
-
-            **Model Behavior:**
-            - Conservative approach: Only predicts "Placed" when highly confident
-            - Excellent at identifying students who need intervention
-            - Better to miss some successful students than give false hope
-            """)
-
-        # Insight 4: Practical Applications
-        with st.expander("🎯 **Practical Applications & Real-World Impact**", expanded=False):
-            st.markdown("""
-            #### How to use these findings in practice:
-
-            ### For Students:
-
-            **Priority 1: Communication Skills** (6.4x impact)
-            - Enroll in public speaking courses immediately
-            - Join debate club, Toastmasters, or drama club
-            - Practice presentations regularly in every class
-            - Seek feedback on written and verbal communication
-            - Participate in mock interviews monthly
-
-            **Priority 2: Academic Excellence** (5.4x impact)
-            - Aim for CGPA of 8.0 or above
-            - Don't neglect studies for extracurriculars
-            - Form study groups with high-performers
-            - Attend office hours and build professor relationships
-
-            **Priority 3: Problem-Solving Skills** (5.0x impact)
-            - Practice aptitude tests (quantitative, logical reasoning)
-            - Solve coding challenges on platforms like LeetCode
-            - Take analytical thinking courses
-
-            **Priority 4: Hands-On Projects** (3.2x impact)
-            - Complete 3+ substantial projects
-            - Focus on quality over quantity
-            - Document work on GitHub or portfolio site
-
-            **Lower Priority: Extracurriculars** (0.97x - neutral)
-            - Do activities you enjoy, not to pad resume
-            - One or two meaningful activities are sufficient
-            - Don't sacrifice core skills for club participation
-
-            ---
-
-            ### For Universities:
-
-            **Immediate Actions:**
-            1. **Mandatory Communication Training** - Make it required every semester
-            2. **Early Warning System** - Use this model to identify at-risk students
-            3. **Project-Based Learning** - Replace some lecture courses
-            4. **Academic Support Services** - Help students maintain strong GPAs
-
-            **Resource Allocation:**
-            - 60% → Communication skills development programs
-            - 20% → Academic tutoring and support
-            - 10% → Project infrastructure and mentorship
-            - 10% → Career counseling and placement services
-
-            **Program Redesign:**
-            - Integrate presentations into every course
-            - Provide regular communication feedback
-            - Create peer-to-peer speaking practice programs
-            - Offer professional communication workshops
-
-            ---
-
-            ### For Employers:
-
-            **Recruitment Insights:**
-            - Communication skills are the best predictor of success
-            - CGPA is a reliable quality signal
-            - Don't over-weight extracurriculars in screening
-
-            **Screening Process:**
-            1. Include communication assessments in first round
-            2. Use standardized aptitude tests (correlates with IQ)
-            3. Review academic transcripts (CGPA matters)
-            4. Evaluate project portfolios for practical skills
-
-            **Interview Focus:**
-            - Heavy emphasis on communication and presentation
-            - Test problem-solving and analytical thinking
-            - Don't penalize candidates who focused on skills over activities
-            """)
-
-        # Insight 5: The Bigger Picture
-        with st.expander("🔬 **The Bigger Picture: What This Means for Education**", expanded=False):
-            st.markdown("""
-            #### This research challenges fundamental assumptions about college success:
-
-            **Traditional Advice:**
-            - "Join as many clubs as possible"
-            - "You need to be well-rounded"
-            - "Employers want to see leadership in activities"
-            - "Internships are absolutely essential"
-
-            **What the Data Actually Shows:**
-            - ✅ Communication skills matter most (6.4x)
-            - ✅ Strong academics are crucial (5.4x)
-            - ✅ Problem-solving ability is key (5.0x)
-            - ✅ Practical projects help (3.2x)
-            - ❌ Extracurriculars have no effect (0.97x)
-            - ❌ Internships barely matter (1.1x)
-
-            **The Paradigm Shift:**
-
-            We've been giving students the wrong advice. Instead of encouraging them to 
-            spread themselves thin across many activities, we should be helping them 
-            develop deep, marketable skills.
-
-            **Why Communication Skills Win:**
-            1. **The Interview Effect** - Placement requires passing interviews, which are 
-               fundamentally communication exercises
-            2. **Workplace Reality** - Most jobs require clear communication daily
-            3. **Hard to Teach** - Employers know technical skills can be trained, but 
-               communication is foundational
-            4. **Signal Quality** - Communication skills signal confidence, clarity, and 
-               professional maturity
-
-            **Implications for Higher Education:**
-            - Rethink curriculum to prioritize communication
-            - Measure and track communication skill development
-            - Provide systematic feedback and training
-            - Stop overemphasizing extracurricular participation
-            - Focus on deep learning over resume building
-
-            **The Bottom Line:**
-            Education should prepare students for success, not just check boxes on a 
-            resume. This data shows us what actually matters for placement success, 
-            and it's time to align our practices with evidence.
+            - Suggests employers prioritize skills over activiti
             """)
 
         st.success("""
