@@ -217,6 +217,17 @@ def main():
         **Primary Goal:** To predict the target variable (**Placement**) and determine exactly how much 
         influence different predictor variables (like Communication Skills, CGPA, IQ, etc.) have on that outcome.
         """)
+
+        # Placement Definition
+        st.markdown("#### What is placement?")
+        st.info("""
+        placement refers to whether a student successfully secures a job offer through campus recruitment - essentially, 
+        getting hired by a company that visits the college to recruit graduates.
+
+        """)
+
+
+        st.markdown("---")
         
         # The Dataset
         st.markdown("### College Student Placement Factors")
@@ -1163,16 +1174,25 @@ def main():
 
         with col1:
             fig, ax = plt.subplots(figsize=(8, 6))
+            fig.patch.set_facecolor('#0f172a')
+            ax.set_facecolor('#1e293b')
+    
             sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues',
                         cbar_kws={'label': 'Count'}, ax=ax,
                         xticklabels=['Not Placed', 'Placed'],
                         yticklabels=['Not Placed', 'Placed'])
-            ax.set_ylabel('Actual', fontsize=12, fontweight='bold')
-            ax.set_xlabel('Predicted', fontsize=12, fontweight='bold')
-            ax.set_title('Confusion Matrix', fontsize=14, fontweight='bold')
+    
+            ax.set_ylabel('Actual', fontsize=12, fontweight='bold', color='white')
+            ax.set_xlabel('Predicted', fontsize=12, fontweight='bold', color='white')
+            ax.set_title('Confusion Matrix', fontsize=14, fontweight='bold', color='white')
+    
+            ax.tick_params(axis='x', colors='white')
+            ax.tick_params(axis='y', colors='white')
+    
             plt.tight_layout()
-            st.pyplot(fig)
+            st.pyplot(fig, transparent=True)
             plt.close()
+
 
         with col2:
             st.markdown("#### Model Performance Interpretation")
@@ -1203,18 +1223,26 @@ def main():
 
         with col1:
             fig, ax = plt.subplots(figsize=(8, 6))
-            ax.plot(fpr, tpr, color='blue', lw=2, label=f'ROC Curve (AUC = {auc_score:.2f})')
-            ax.plot([0, 1], [0, 1], color='red', lw=2, linestyle='--', label='Random Guess')
+            fig.patch.set_facecolor('#0f172a')
+            ax.set_facecolor('#1e293b')
+    
+            ax.plot(fpr, tpr, color='#3b82f6', lw=2, label=f'ROC Curve (AUC = {auc_score:.2f})')
+            ax.plot([0, 1], [0, 1], color='#ef4444', lw=2, linestyle='--', label='Random Guess')
+    
             ax.set_xlim([0.0, 1.0])
             ax.set_ylim([0.0, 1.05])
-            ax.set_xlabel('False Positive Rate', fontsize=12)
-            ax.set_ylabel('True Positive Rate (Recall)', fontsize=12)
-            ax.set_title('ROC Curve: Model Discrimination Ability', fontsize=14, fontweight='bold')
-            ax.legend(loc="lower right")
-            ax.grid(True, alpha=0.3)
+            ax.set_xlabel('False Positive Rate', fontsize=12, color='white')
+            ax.set_ylabel('True Positive Rate (Recall)', fontsize=12, color='white')
+            ax.set_title('ROC Curve: Model Discrimination Ability', fontsize=14, fontweight='bold', color='white')
+    
+            ax.legend(facecolor='#1e293b', edgecolor='#3b82f6', labelcolor='white')
+            ax.tick_params(colors='white')
+            ax.grid(True, color='white', alpha=0.1)
+    
             plt.tight_layout()
-            st.pyplot(fig)
+            st.pyplot(fig, transparent=True)
             plt.close()
+
 
         with col2:
             st.markdown("#### ROC Curve Interpretation")
@@ -1255,22 +1283,24 @@ def main():
             st.markdown("#### Odds Ratios (Feature Impact)")
 
             fig, ax = plt.subplots(figsize=(10, 6))
-            colors = ['green' if x > 1 else 'red' for x in feature_importance_df['Odds_Ratio']]
-            bars = ax.barh(feature_importance_df['Feature'], feature_importance_df['Odds_Ratio'],
-                           color=colors, alpha=0.7)
-            ax.axvline(x=1, color='black', linestyle='--', linewidth=2, label='No Effect')
-            ax.set_xlabel('Odds Ratio', fontsize=12, fontweight='bold')
-            ax.set_title('Feature Impact on Placement (Odds Ratios)', fontsize=14, fontweight='bold')
-            ax.legend()
-            ax.grid(True, alpha=0.3, axis='x')
+            fig.patch.set_facecolor('#0f172a')
+            ax.set_facecolor('#1e293b')
+    
+            colors = ['#22c55e' if x > 1 else '#ef4444' for x in feature_importance_df['Odds_Ratio']]
+            bars = ax.barh(feature_importance_df['Feature'], feature_importance_df['Odds_Ratio'], color=colors, alpha=0.7)
+    
+            ax.axvline(x=1, color='white', linestyle='--', linewidth=2)
+            ax.set_xlabel('Odds Ratio', fontsize=12, fontweight='bold', color='white')
+            ax.set_title('Feature Impact on Placement (Odds Ratios)', fontsize=14, fontweight='bold', color='white')
+            ax.grid(True, color='white', alpha=0.1, axis='x')
 
-            # Add value labels
+            ax.tick_params(axis='y', colors='white')
+    
             for i, (idx, row) in enumerate(feature_importance_df.iterrows()):
-                ax.text(row['Odds_Ratio'], i, f' {row["Odds_Ratio"]:.2f}',
-                        va='center', fontweight='bold')
-
+                ax.text(row['Odds_Ratio'], i, f' {row["Odds_Ratio"]:.2f}', va='center', fontweight='bold', color='white')
+    
             plt.tight_layout()
-            st.pyplot(fig)
+            st.pyplot(fig, transparent=True)
             plt.close()
 
         with col2:
@@ -1581,29 +1611,34 @@ def main():
                 st.metric("Not Placed Probability", f"{pred_proba[0]:.1%}")
 
             # Visualization
-            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
-
             # Bar chart
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+            fig.patch.set_facecolor('#0f172a')
+            ax1.set_facecolor('#1e293b')
+            ax2.set_facecolor('#1e293b')
+
             categories = ['Not Placed', 'Placed']
-            colors_pred = ['#ff6b6b', '#51cf66']
+            colors_pred = ['#ef4444', '#22c55e']
             bars = ax1.barh(categories, pred_proba, color=colors_pred, alpha=0.7)
             ax1.set_xlim([0, 1])
-            ax1.set_xlabel('Probability', fontsize=12, fontweight='bold')
-            ax1.set_title('Placement Probability', fontsize=14, fontweight='bold')
-            ax1.grid(True, alpha=0.3, axis='x')
+            ax1.set_xlabel('Probability', fontsize=12, fontweight='bold', color='white')
+            ax1.set_title('Placement Probability', fontsize=14, fontweight='bold', color='white')
+            ax1.grid(True, color='white', alpha=0.1, axis='x')
+            ax1.tick_params(colors='white')
 
             for i, (bar, prob) in enumerate(zip(bars, pred_proba)):
-                ax1.text(prob + 0.02, i, f'{prob:.1%}', va='center',
-                         fontweight='bold', fontsize=12)
+                ax1.text(prob + 0.02, i, f'{prob:.1%}', va='center', fontweight='bold', color='white')
 
-            # Pie chart
+        # Pie chart
             ax2.pie(pred_proba, labels=categories, autopct='%1.1f%%',
-                    colors=colors_pred, startangle=90, textprops={'fontsize': 12, 'fontweight': 'bold'})
-            ax2.set_title('Probability Distribution', fontsize=14, fontweight='bold')
+                colors=colors_pred, startangle=90,
+                textprops={'fontsize': 12, 'fontweight': 'bold', 'color': 'white'})
+            ax2.set_title('Probability Distribution', fontsize=14, fontweight='bold', color='white')
 
             plt.tight_layout()
-            st.pyplot(fig)
+            st.pyplot(fig, transparent=True)
             plt.close()
+
 
             # Recommendations
             st.markdown("#### 💡 Personalized Recommendations")
@@ -1678,17 +1713,21 @@ def main():
             }).sort_values('Contribution', ascending=True)
 
             fig, ax = plt.subplots(figsize=(10, 6))
-            colors_contrib = ['red' if x < 0 else 'green' for x in contrib_df['Contribution']]
-            bars = ax.barh(contrib_df['Feature'], contrib_df['Contribution'],
-                           color=colors_contrib, alpha=0.7)
-            ax.axvline(x=0, color='black', linestyle='--', linewidth=2)
-            ax.set_xlabel('Contribution to Placement Probability', fontsize=12, fontweight='bold')
-            ax.set_title('How Each Feature Affects This Prediction', fontsize=14, fontweight='bold')
-            ax.grid(True, alpha=0.3, axis='x')
+            fig.patch.set_facecolor('#0f172a')
+            ax.set_facecolor('#1e293b')
+
+            colors_contrib = ['#ef4444' if x < 0 else '#22c55e' for x in contrib_df['Contribution']]
+            bars = ax.barh(contrib_df['Feature'], contrib_df['Contribution'], color=colors_contrib, alpha=0.7)
+            ax.axvline(x=0, color='white', linestyle='--', linewidth=2)
+            ax.set_xlabel('Contribution to Placement Probability', fontsize=12, fontweight='bold', color='white')
+            ax.set_title('How Each Feature Affects This Prediction', fontsize=14, fontweight='bold', color='white')
+            ax.grid(True, color='white', alpha=0.1, axis='x')
+            ax.tick_params(colors='white')
 
             plt.tight_layout()
-            st.pyplot(fig)
+            st.pyplot(fig, transparent=True)
             plt.close()
+
 
             # Show contribution table
             st.dataframe(contrib_df.style.format({'Student Value': '{:.2f}',
@@ -1738,21 +1777,29 @@ def main():
 
         # Probability bar chart
         fig, ax = plt.subplots(figsize=(10, 3))
+        fig.patch.set_facecolor('#0f172a')    # Figure background
+        ax.set_facecolor('#1e293b')           # Plot background
+
         categories = ['Not Placed', 'Placed']
         probabilities = prediction_proba
-        colors_bar = ['red', 'green']
+        colors_bar = ['#ef4444', '#22c55e']   # Red for Not Placed, Green for Placed
 
         bars = ax.barh(categories, probabilities, color=colors_bar, alpha=0.7)
         ax.set_xlim([0, 1])
-        ax.set_xlabel('Probability', fontsize=12, fontweight='bold')
-        ax.set_title('Placement Probability Distribution', fontsize=14, fontweight='bold')
+        ax.set_xlabel('Probability', fontsize=12, fontweight='bold', color='white')
+        ax.set_title('Placement Probability Distribution', fontsize=14, fontweight='bold', color='white')
+        ax.grid(True, color='white', alpha=0.1, axis='x')
 
-        # Add percentage labels
+        # Make y-axis labels white
+        ax.tick_params(axis='y', colors='white')
+        ax.tick_params(axis='x', colors='white')
+
+        # Add value labels
         for i, (bar, prob) in enumerate(zip(bars, probabilities)):
-            ax.text(prob, i, f' {prob:.1%}', va='center', fontweight='bold', fontsize=12)
+            ax.text(prob + 0.02, i, f'{prob:.1%}', va='center', fontweight='bold', color='white')
 
         plt.tight_layout()
-        st.pyplot(fig)
+        st.pyplot(fig, transparent=True)
         plt.close()
    # ============================================================================
     # SECTION 4: CONCLUSIONS & RECOMMENDATIONS (REVAMPED)
