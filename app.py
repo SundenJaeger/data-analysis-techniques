@@ -1750,16 +1750,6 @@ Focus on being articulate and maintaining good grades. Don't over-schedule yours
             <p>Powered by Logistic Regression | Streamlit Application</p>
         </div>
     """, unsafe_allow_html=True)
-    
-    # Footer
-    st.markdown("---")
-    st.markdown("""
-        <div style='text-align: center; color: gray; padding: 2rem;'>
-            <p><strong>College Student Placement Analysis</strong></p>
-            <p>Final Project: Data Analysis Techniques</p>
-            <p>Powered by Logistic Regression | Streamlit Application</p>
-        </div>
-    """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
