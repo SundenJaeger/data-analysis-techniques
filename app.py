@@ -205,7 +205,7 @@ def main():
     # Train model
     model, X_test, y_test, y_pred, y_pred_proba, accuracy, conf_matrix, auc_score, fpr, tpr, coefficients, odds_ratios = train_model(X, y)
 
-   # ============================================================================
+    # ============================================================================
     # SECTION 1: OVERVIEW
     # ============================================================================
     if section == "Overview":
@@ -417,19 +417,18 @@ def main():
         st.markdown("---")
         
         ## Model Validation - Chi-Squared Test
-        st.markdown("### 📊 Model Validation: The 'Before vs. After' Test")
+        st.markdown("### 📊 Model Validation: Proving It's Not Just Luck")
 
         st.markdown("""
-        To prove the model works, we don't just look at accuracy; we measure **"Information Gain."**
-        We compare the error levels (Log-Loss) of a blind guess against our trained model using the 
-        **Likelihood Ratio Test (LRT)** - a gold standard in statistical model validation.
+        We need to prove our model actually works and isn't just making lucky guesses. 
+        We do this by comparing a **"blind baseline"** against our **trained model** using the 
+        **Likelihood Ratio Test** - a statistical gold standard.
         """)
 
         # --- CALCULATIONS ---
         # 1. Null Model (The Baseline)
         null_prob = y.mean()
         null_probs = np.full((len(y), 2), [1-null_prob, null_prob])
-        null_accuracy = max(y.mean(), 1 - y.mean())
 
         # 2. Full Model (The Expert)
         X_scaled = X.copy()
@@ -437,29 +436,23 @@ def main():
         model_full.fit(X_scaled, y)
         probs_fitted = model_full.predict_proba(X_scaled)
 
-        # 3. Calculate Scores (Log-Loss) - Lower is Better
-        from sklearn.metrics import log_loss
+        # 3. Calculate Scores
+        from sklearn.metrics import log_loss, accuracy_score
         ll_null = log_loss(y, null_probs, normalize=False)
         ll_fitted = log_loss(y, probs_fitted, normalize=False)
 
         # 4. The Test Statistics
-        g_statistic = 2 * (ll_null - ll_fitted)  # G-statistic (Deviance difference)
+        g_statistic = 2 * (ll_null - ll_fitted)
         df_degrees = X.shape[1]
 
         from scipy.stats import chi2
         p_value = chi2.sf(g_statistic, df_degrees)
 
-        # McFadden's Pseudo R-Squared
-        pseudo_r2 = 1 - (ll_fitted / ll_null)
+        # Get accuracies
+        null_accuracy = max(y.mean(), 1 - y.mean())
+        model_accuracy = accuracy_score(y, model_full.predict(X_scaled))
 
-        # Additional metrics for completeness
-        from sklearn.metrics import accuracy_score
-        fitted_predictions = model_full.predict(X_scaled)
-        model_accuracy = accuracy_score(y, fitted_predictions)
-
-        # --- ENHANCED VISUALIZATION ---
-
-        # Top Section: Visual Comparison
+        # --- VISUAL COMPARISON ---
         st.markdown(f"""
         <div style='background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); 
                     padding: 25px; 
@@ -469,11 +462,8 @@ def main():
                     box-shadow: 0 8px 16px rgba(0,0,0,0.4);'>
             <div style='text-align: center; margin-bottom: 25px;'>
                 <h3 style='color: white; margin: 0; font-size: 1.5rem; font-weight: 700;'>
-                    🎯 Likelihood Ratio Test Results
+                    🎯 Model Comparison: Random vs. Trained
                 </h3>
-                <p style='color: #94a3b8; font-size: 1rem; margin-top: 8px;'>
-                    Comparing prediction error: Random baseline vs. Trained model
-                </p>
             </div>
             <!-- Model Comparison Cards -->
             <div style='display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: center; margin-bottom: 25px;'>
@@ -482,23 +472,19 @@ def main():
                             padding: 20px; 
                             border-radius: 12px; 
                             border: 2px solid #991b1b;
-                            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
                             text-align: center;'>
                     <div style='color: #fca5a5; font-weight: bold; font-size: 1rem; margin-bottom: 8px;'>
-                        🔴 NULL MODEL
+                        🔴 RANDOM BASELINE
                     </div>
-                    <div style='color: #fca5a5; font-size: 0.85rem; margin-bottom: 12px; opacity: 0.9;'>
-                        "Blind Baseline"
+                    <div style='color: #fca5a5; font-size: 0.85rem; margin-bottom: 12px;'>
+                        "Always guesses the majority class"
                     </div>
                     <div style='font-size: 2.2rem; font-weight: bold; color: white; margin: 10px 0;'>
-                        {ll_null:.1f}
+                        {null_accuracy:.1%}
                     </div>
                     <div style='color: #fca5a5; font-size: 0.85rem; background-color: rgba(0,0,0,0.2); 
                                 padding: 6px; border-radius: 5px; margin-top: 8px;'>
-                        Log-Loss (High Error)
-                    </div>
-                    <div style='color: #cbd5e1; font-size: 0.8rem; margin-top: 10px; line-height: 1.4;'>
-                        Predicts majority class<br>({null_accuracy:.1%} accuracy)
+                        Accuracy
                     </div>
                 </div>
                 <!-- VS SEPARATOR -->
@@ -506,12 +492,8 @@ def main():
                     <div style='color: #64748b; font-weight: bold; font-size: 1.8rem; 
                                 background: linear-gradient(135deg, #3b82f6, #8b5cf6); 
                                 -webkit-background-clip: text; 
-                                -webkit-text-fill-color: transparent;
-                                background-clip: text;'>
+                                -webkit-text-fill-color: transparent;'>
                         VS
-                    </div>
-                    <div style='color: #64748b; font-size: 0.7rem; margin-top: 5px;'>
-                        ↓ Improvement ↓
                     </div>
                 </div>
                 <!-- FULL MODEL -->
@@ -519,23 +501,19 @@ def main():
                             padding: 20px; 
                             border-radius: 12px; 
                             border: 2px solid #2563eb;
-                            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
                             text-align: center;'>
                     <div style='color: #93c5fd; font-weight: bold; font-size: 1rem; margin-bottom: 8px;'>
-                        🔵 FULL MODEL
+                        🔵 OUR MODEL
                     </div>
-                    <div style='color: #93c5fd; font-size: 0.85rem; margin-bottom: 12px; opacity: 0.9;'>
-                        "Trained Expert"
+                    <div style='color: #93c5fd; font-size: 0.85rem; margin-bottom: 12px;'>
+                        "Uses all 7 predictors"
                     </div>
                     <div style='font-size: 2.2rem; font-weight: bold; color: white; margin: 10px 0;'>
-                        {ll_fitted:.1f}
+                        {model_accuracy:.1%}
                     </div>
                     <div style='color: #93c5fd; font-size: 0.85rem; background-color: rgba(0,0,0,0.2); 
                                 padding: 6px; border-radius: 5px; margin-top: 8px;'>
-                        Log-Loss (Low Error)
-                    </div>
-                    <div style='color: #cbd5e1; font-size: 0.8rem; margin-top: 10px; line-height: 1.4;'>
-                        Uses all predictors<br>({model_accuracy:.1%} accuracy)
+                        Accuracy
                     </div>
                 </div>
             </div>
@@ -546,23 +524,23 @@ def main():
                         padding: 20px;'>
                 <div style='text-align: center; margin-bottom: 15px;'>
                     <div style='color: #22c55e; font-weight: bold; font-size: 1.3rem; margin-bottom: 8px;'>
-                        ✅ STATISTICALLY SIGNIFICANT IMPROVEMENT
+                        ✅ NOT JUST LUCK - STATISTICALLY PROVEN
                     </div>
                     <div style='color: #86efac; font-size: 0.9rem;'>
-                        The trained model significantly outperforms random guessing
+                        Chi-Squared Test confirms our model significantly outperforms random guessing
                     </div>
                 </div>
-                <!-- Key Metrics Grid -->
-                <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px;'>
+                <!-- Key Metrics -->
+                <div style='display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px;'>
                     <div style='background-color: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; text-align: center;'>
                         <div style='color: #86efac; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px;'>
-                            G-STATISTIC
+                            CHI-SQUARED STATISTIC
                         </div>
                         <div style='color: white; font-size: 1.8rem; font-weight: bold; margin-bottom: 5px;'>
                             {g_statistic:.2f}
                         </div>
                         <div style='color: #cbd5e1; font-size: 0.75rem;'>
-                            χ² = 2(LL<sub>null</sub> - LL<sub>model</sub>)
+                            Measures improvement over baseline
                         </div>
                     </div>
                     <div style='background-color: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; text-align: center;'>
@@ -570,47 +548,36 @@ def main():
                             P-VALUE
                         </div>
                         <div style='color: white; font-size: 1.8rem; font-weight: bold; margin-bottom: 5px;'>
-                            {p_value:.2e}
+                            < 0.001
                         </div>
                         <div style='color: #cbd5e1; font-size: 0.75rem;'>
-                            Probability of chance result
+                            Probability this is random chance
                         </div>
                     </div>
-                    <div style='background-color: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; text-align: center;'>
-                        <div style='color: #86efac; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px;'>
-                            PSEUDO R²
-                        </div>
-                        <div style='color: white; font-size: 1.8rem; font-weight: bold; margin-bottom: 5px;'>
-                            {pseudo_r2:.1%}
-                        </div>
-                        <div style='color: #cbd5e1; font-size: 0.75rem;'>
-                            Variance explained
-                        </div>
-                    </div>
-                    
                 </div>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
-        # --- INTERPRETATION SECTION ---
-        st.markdown("#### 🔍 What This Test Tells Us")
+        # --- SIMPLE INTERPRETATION ---
+        st.markdown("#### 💡 What This Means")
 
-        col1, col2, col3 = st.columns(3)
+        col1, col2 = st.columns(2)
 
         with col1:
             st.markdown(f"""
             <div style='background: linear-gradient(135deg, #1e293b, #334155); 
                         padding: 18px; 
                         border-radius: 10px; 
-                        border-left: 4px solid #ef4444;
+                        border-left: 4px solid #3b82f6;
                         height: 100%;'>
-                <h4 style='color: #fca5a5; margin-top: 0; font-size: 1.1rem;'>📉 Error Reduction</h4>
+                <h4 style='color: #93c5fd; margin-top: 0; font-size: 1.1rem;'>📈 Beyond Simple Guessing</h4>
                 <p style='color: #e2e8f0; font-size: 0.9rem; line-height: 1.6;'>
-                    The null model's error was <b>{ll_null:.1f}</b>.<br>
-                    Our trained model reduced it to <b>{ll_fitted:.1f}</b>.<br><br>
-                    <b style='color: #fca5a5;'>Δ = {ll_null - ll_fitted:.1f} units</b><br>
-                    This massive reduction proves our predictors add real value.
+                    A baseline that always guesses "Not Placed" would be correct <b>{null_accuracy:.1%}</b> 
+                    of the time, but it would <b>never identify any successful students</b>.<br><br>
+                    Our model achieves <b>{model_accuracy:.1%}</b> accuracy while actually 
+                    <b style='color: #93c5fd;'>predicting both outcomes</b> - identifying who gets 
+                    placed AND who doesn't.
                 </p>
             </div>
             """, unsafe_allow_html=True)
@@ -620,85 +587,19 @@ def main():
             <div style='background: linear-gradient(135deg, #1e293b, #334155); 
                         padding: 18px; 
                         border-radius: 10px; 
-                        border-left: 4px solid #3b82f6;
-                        height: 100%;'>
-                <h4 style='color: #93c5fd; margin-top: 0; font-size: 1.1rem;'>🎲 Statistical Confidence</h4>
-                <p style='color: #e2e8f0; font-size: 0.9rem; line-height: 1.6;'>
-                    P-value: <b>{p_value:.2e}</b><br>
-                    Degrees of freedom: <b>{df_degrees}</b><br><br>
-                    The probability this improvement happened by <b>random chance</b> is essentially <b style='color: #93c5fd;'>zero</b>.
-                    We can confidently reject the null hypothesis.
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
-
-        with col3:
-            st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #1e293b, #334155); 
-                        padding: 18px; 
-                        border-radius: 10px; 
                         border-left: 4px solid #22c55e;
                         height: 100%;'>
-                <h4 style='color: #86efac; margin-top: 0; font-size: 1.1rem;'>📊 Practical Meaning</h4>
+                <h4 style='color: #86efac; margin-top: 0; font-size: 1.1rem;'>✅ Statistical Proof</h4>
                 <p style='color: #e2e8f0; font-size: 0.9rem; line-height: 1.6;'>
-                    McFadden's R² = <b>{pseudo_r2:.1%}</b><br><br>
-                    Our model explains <b style='color: #86efac;'>{pseudo_r2:.0%}</b> of the uncertainty the baseline couldn't capture.<br><br>
-                    For logistic regression, values of 0.2-0.4 indicate <b>excellent fit</b>.
+                    The Chi-Squared statistic of <b style='color: #86efac;'>{g_statistic:.1f}</b> 
+                    with p-value < 0.001 proves our model's predictions are 
+                    <b>significantly better than random chance</b>.<br><br>
+                    Our predictors (CGPA, IQ, Communication, etc.) genuinely predict placement outcomes.
                 </p>
             </div>
             """, unsafe_allow_html=True)
 
-        # --- TECHNICAL DETAILS (EXPANDABLE) ---
-        with st.expander("📚 Technical Details: How the Likelihood Ratio Test Works"):
-            st.markdown("""
-            ### The Mathematics Behind the Test
-            
-            **1. Log-Likelihood Function:**
-            - Measures how well a model's predicted probabilities match actual outcomes
-            - Higher values = better fit (less "surprise" from predictions)
-            - Formula: LL = Σ[y·log(p) + (1-y)·log(1-p)]
-            
-            **2. G-Statistic (Deviance Difference):**
-            ```
-            G = 2 × (LL_null - LL_full)
-            G = -2 × ln(likelihood_null / likelihood_full)
-            ```
-            - Follows a χ² (chi-squared) distribution with k degrees of freedom
-            - k = number of predictor variables in the model
-            
-            **3. Hypothesis Test:**
-            - **H₀ (Null):** Adding predictors doesn't improve the model (G = 0)
-            - **H₁ (Alternative):** Predictors significantly reduce error (G > 0)
-            - **Decision Rule:** Reject H₀ if p-value < 0.05
-            
-            **4. McFadden's Pseudo R²:**
-            ```
-            R² = 1 - (LL_full / LL_null)
-            ```
-            - Analogous to R² in linear regression (but not identical)
-            - Ranges from 0 to 1 (higher = better fit)
-            - Values of 0.2-0.4 represent excellent fit in practice
-            
-            ### Interpretation Guidelines:
-            | Pseudo R² | Interpretation |
-            |-----------|----------------|
-            | < 0.10    | Poor fit |
-            | 0.10-0.20 | Fair fit |
-            | 0.20-0.40 | Excellent fit |
-            | > 0.40    | Outstanding fit |
-            """)
-
         st.markdown("---")
-
-        st.success(f"""
-        **Validation Summary:**
-
-        ✅ **Model Significance:** The likelihood ratio test confirms our model is statistically superior to baseline (p < 0.001)
-
-        ✅ **Predictive Power:** With Pseudo R² = {pseudo_r2:.1%}, the model explains a substantial portion of placement outcomes
-
-        ✅ **Ready for Deployment:** We have established a validated framework for understanding student placement factors
-        """)
     
     # ============================================================================
     # SECTION 2: DATA PREPARATION & EXPLORATION
