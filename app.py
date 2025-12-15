@@ -1733,76 +1733,8 @@ def main():
             st.dataframe(contrib_df.style.format({'Student Value': '{:.2f}',
                                                   'Contribution': '{:.4f}'}),
                          use_container_width=True)
-
-        # Interactive Feature Explorer
-        st.markdown("### 🔍 Interactive Feature Explorer")
-
-        st.markdown("Use the sliders below to see how different feature values affect placement probability:")
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-            iq_value = st.slider("IQ", 60, 160, 100)
-            cgpa_value = st.slider("CGPA", 4.5, 10.5, 7.5, 0.1)
-            comm_skills = st.slider("Communication Skills", 1, 10, 7)
-            projects = st.slider("Projects Completed", 0, 5, 2)
-
-        with col2:
-            prev_sem = st.slider("Previous Semester Result", 5.0, 10.0, 7.5, 0.1)
-            acad_perf = st.slider("Academic Performance", 1, 10, 7)
-            extra_curr = st.slider("Extra Curricular Score", 0, 10, 5)
-            internship = st.selectbox("Internship Experience", ["No", "Yes"])
-
-        # Make prediction
-        internship_val = 1 if internship == "Yes" else 0
-        input_features = np.array([[iq_value, prev_sem, cgpa_value, acad_perf,
-                                    internship_val, extra_curr, comm_skills, projects]])
-
-        prediction_proba = model.predict_proba(input_features)[0]
-        prediction = model.predict(input_features)[0]
-
-        st.markdown("### 🎯 Prediction Result")
-
-        col1, col2, col3 = st.columns(3)
-
-        with col1:
-            st.metric("Placement Prediction",
-                      "PLACED ✅" if prediction == 1 else "NOT PLACED ❌")
-        with col2:
-            st.metric("Probability of Placement",
-                      f"{prediction_proba[1]:.1%}")
-        with col3:
-            confidence = "High" if max(prediction_proba) > 0.8 else "Medium" if max(prediction_proba) > 0.6 else "Low"
-            st.metric("Confidence Level", confidence)
-
-        # Probability bar chart
-        fig, ax = plt.subplots(figsize=(10, 3))
-        fig.patch.set_facecolor('#0f172a')    # Figure background
-        ax.set_facecolor('#1e293b')           # Plot background
-
-        categories = ['Not Placed', 'Placed']
-        probabilities = prediction_proba
-        colors_bar = ['#ef4444', '#22c55e']   # Red for Not Placed, Green for Placed
-
-        bars = ax.barh(categories, probabilities, color=colors_bar, alpha=0.7)
-        ax.set_xlim([0, 1])
-        ax.set_xlabel('Probability', fontsize=12, fontweight='bold', color='white')
-        ax.set_title('Placement Probability Distribution', fontsize=14, fontweight='bold', color='white')
-        ax.grid(True, color='white', alpha=0.1, axis='x')
-
-        # Make y-axis labels white
-        ax.tick_params(axis='y', colors='white')
-        ax.tick_params(axis='x', colors='white')
-
-        # Add value labels
-        for i, (bar, prob) in enumerate(zip(bars, probabilities)):
-            ax.text(prob + 0.02, i, f'{prob:.1%}', va='center', fontweight='bold', color='white')
-
-        plt.tight_layout()
-        st.pyplot(fig, transparent=True)
-        plt.close()
-   # ============================================================================
-    # SECTION 4: CONCLUSIONS & RECOMMENDATIONS (REVAMPED)
+    # ============================================================================
+    # SECTION 4: CONCLUSIONS & RECOMMENDATIONS
     # ============================================================================
     elif section == "Conclusions & Recommendations":
         st.markdown('<h2 class="section-header">🎯 Conclusions & Recommendations</h2>', unsafe_allow_html=True)
