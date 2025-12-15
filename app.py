@@ -825,17 +825,27 @@ def main():
                 st.caption("Model Input")
 
         # Step 5: Feature Selection
-        with st.expander("**Step 5: Feature Selection Strategy** 🎯", expanded=False):
+        with st.expander("**Step 5: Feature Selection & Multicollinearity Check** 🎯", expanded=False):
             st.markdown("""
             **Objective:** Select the strongest predictors while avoiding noise and redundancy.
-            
-            We filtered the 10 raw columns down to **8 core features**:
             """)
             
+            # --- NEW SECTION: MULTICOLLINEARITY CHECK ---
+            st.markdown("#### 1️⃣ Multicollinearity Detection")
+            st.info("""
+            **Observation:** We generated a Correlation Matrix to check for redundant features.
+            * **Finding:** `CGPA` and `Academic_Performance` had a correlation of **0.90**.
+            * **The Problem:** Highly correlated input features confuse the model, splitting the "importance" score between them.
+            * **Resolution:** We used a **"Winner Takes All"** strategy. Since `CGPA` had a stronger correlation with the target (`Placement`), we kept `CGPA` and dropped `Academic_Performance`.
+            """)
+            
+            st.markdown("---")
+            st.markdown("#### 2️⃣ Final Feature Set")
+
             feature_col1, feature_col2 = st.columns(2)
             
             with feature_col1:
-                st.markdown("#### ✅ Selected Features")
+                st.markdown("#### ✅ Selected Features (7)")
                 st.markdown("""
                 1. **CGPA** (Academic Consistency)
                 2. **Communication Skills** (Soft Skills)
@@ -843,15 +853,16 @@ def main():
                 4. **Projects Completed** (Technical Application)
                 5. **Internship Experience** (Industry Exposure)
                 6. **Prev Sem Result** (Short-term Trend)
-                7. **Academic Performance** (Teacher Rating)
-                8. **Extra Curriculars** (Personality)
+                7. **Extra Curriculars** (Personality)
                 """)
             
             with feature_col2:
-                st.markdown("#### ❌ Dropped Features")
+                st.markdown("#### ❌ Dropped Features (3)")
                 st.markdown("""
                 * **College_ID**: 
-                  * *Reason:* It is a random identifier (nominal), not a predictor. Including it would cause the model to memorize ID numbers instead of learning patterns.
+                  * *Reason:* Random identifier (Nominal variable). No predictive power.
+                * **Academic_Performance**:
+                  * *Reason:* **High Multicollinearity**. Redundant with `CGPA`.
                 """)
 
         # Step 6: Train-Test Split
@@ -981,10 +992,6 @@ def main():
         ax1.legend()
 
 
-        plt.tight_layout()
-        st.pyplot(fig)
-        plt.close()
-
         # Show outlier statistics
         outlier_count = len(df[(df[outlier_feature] < lower_bound) |
                                (df[outlier_feature] > upper_bound)])
@@ -1021,7 +1028,7 @@ def main():
 
         st.markdown("#### Distribution of Features by Placement Status")
 
-        # Feature selection as single selectbox instead of multiselect
+        # Feature selection
         selected_feature = st.selectbox(
             "Select a feature to visualize:",
             ['IQ', 'CGPA', 'Communication_Skills', 'Projects_Completed',
@@ -1029,27 +1036,48 @@ def main():
             key='distribution_viz'
         )
 
-        # Create a single row with histogram
-        fig, ax = plt.subplots(1, 1, figsize=(12, 6))
+        # 1. Setup Figure with Dark Theme
+        # (12, 4.5) is a good balance—short, but not "pancake" flat
+        fig, ax = plt.subplots(1, 1, figsize=(12, 4.5)) 
+        
+        # Set Dark Backgrounds
+        fig.patch.set_facecolor('#0f172a') 
+        ax.set_facecolor('#1e293b')
 
-        # Get data for selected feature
+        # Get data
         placed_data = df[df['Placement'] == 'Yes'][selected_feature].values
         not_placed_data = df[df['Placement'] == 'No'][selected_feature].values
 
-        # Create histogram with placement overlay
-        ax.hist(not_placed_data, alpha=0.6, label='Not Placed', bins=30, color='#ff6b6b', edgecolor='black')
-        ax.hist(placed_data, alpha=0.6, label='Placed', bins=30, color='#51cf66', edgecolor='black')
+        # 2. Create Histograms
+        # INCREASED BINS: Changed from 30 to 50 so bars look thinner (less stretched)
+        ax.hist(not_placed_data, alpha=0.6, label='Not Placed', bins=50, color='#ff6b6b', edgecolor='#1e293b')
+        ax.hist(placed_data, alpha=0.6, label='Placed', bins=50, color='#51cf66', edgecolor='#1e293b')
 
-        ax.set_xlabel(selected_feature, fontsize=12, fontweight='bold')
-        ax.set_ylabel('Frequency', fontsize=12, fontweight='bold')
-        ax.set_title(f'Distribution of {selected_feature} by Placement Status',
-                     fontsize=14, fontweight='bold')
-        ax.legend(fontsize=11, loc='upper right')
-        ax.grid(True, alpha=0.3, axis='y')
+        # 3. Style Text and Labels
+        ax.set_xlabel(selected_feature, fontsize=12, fontweight='bold', color='white')
+        ax.set_ylabel('Frequency', fontsize=12, fontweight='bold', color='white')
+        ax.set_title(f'Distribution of {selected_feature}', fontsize=14, fontweight='bold', color='white')
+        
+        # 4. Style Grid
+        ax.grid(True, color='white', alpha=0.1, axis='y')
+        ax.tick_params(axis='x', colors='white')
+        ax.tick_params(axis='y', colors='white')
+        
+        # 5. LEGEND MOVED OUTSIDE
+        # bbox_to_anchor=(1, 1) places it at the top-right corner, outside the axis
+        legend = ax.legend(
+            fontsize=11, 
+            loc='upper left', 
+            bbox_to_anchor=(1, 1), # This moves it to the right
+            facecolor='#1e293b', 
+            edgecolor='#3b82f6'
+        )
+        plt.setp(legend.get_texts(), color='white')
 
+        # Tight layout adjusts the frame to fit the new external legend
         plt.tight_layout()
-        st.pyplot(fig)
-        plt.close()
+        st.pyplot(fig, transparent=True)
+        plt.close() 
 
         # Show summary statistics for the selected feature
         col1, col2, col3 = st.columns(3)
@@ -1103,41 +1131,102 @@ def main():
         </div>
         """, unsafe_allow_html=True)
 
-        # Correlation Heatmap
+       # Correlation Heatmap
         st.markdown("#### Correlation Heatmap")
 
-        fig, ax = plt.subplots(figsize=(12, 8))
+        # 1. Setup Figure (Reduced Size)
+        # Reduced from (12, 8) to (10, 6) for a compact look
+        col1, col2, col3 = st.columns([6, 1, 1])
 
-        # Select only numeric columns for correlation
-        numeric_cols = df_model.select_dtypes(include=[np.number]).columns
-        corr_matrix = df_model[numeric_cols].corr()
+        with col1:
+            fig, ax = plt.subplots(figsize=(8, 4))
 
-        sns.heatmap(corr_matrix, annot=True, fmt='.2f', cmap='coolwarm',
-                    center=0, square=True, ax=ax, cbar_kws={'shrink': 0.8})
-        ax.set_title('Feature Correlation Matrix', fontsize=16, fontweight='bold')
-        plt.tight_layout()
-        st.pyplot(fig)
-        plt.close()
+            # Set Dark Background (matches your app theme)
+            fig.patch.set_facecolor('#0f172a')
+            
+            # Select numeric columns
+            numeric_cols = df_model.select_dtypes(include=[np.number]).columns
+            corr_matrix = df_model[numeric_cols].corr()
+
+            # 2. Create Heatmap
+            sns.heatmap(corr_matrix, 
+                        annot=True, 
+                        fmt='.2f', 
+                        cmap='Blues', 
+                        center=0, 
+                        square=True, 
+                        ax=ax, 
+                        cbar_kws={'shrink': 0.8},
+                        linewidths=1,       # Adds spacing lines
+                        linecolor='#0f172a', # Lines match background color
+                        annot_kws={"size": 5, "color": "white"} # White text inside boxes
+                    )
+
+            # 3. Style Text (White for Dark Mode)
+            ax.set_title('Feature Correlation Matrix', fontsize=10, fontweight='bold', color='white')
+            
+            # Style X and Y ticks
+            ax.set_xticklabels(ax.get_xticklabels(), rotation=45, horizontalalignment='right', color='white', fontsize=6)
+            ax.set_yticklabels(ax.get_yticklabels(), color='white', fontsize=6)
+
+            # 4. Style Colorbar Text
+            cbar = ax.collections[0].colorbar
+            cbar.ax.yaxis.set_tick_params(color='white')
+            plt.setp(plt.getp(cbar.ax.axes, 'yticklabels'), color='white')
+
+            plt.tight_layout()
+            st.pyplot(fig, transparent=True)
+            plt.close()
 
         # Box plots
         st.markdown("#### Box Plots: Feature Comparison by Placement")
 
-        selected_feature = st.selectbox(
+        # Feature selection
+        selected_feature_box = st.selectbox(
             "Select feature for detailed box plot:",
             ['IQ', 'CGPA', 'Communication_Skills', 'Projects_Completed',
-             'Extra_Curricular_Score', 'Academic_Performance']
+             'Extra_Curricular_Score', 'Academic_Performance'],
+            key='box_viz_final'
         )
 
-        fig, ax = plt.subplots(figsize=(10, 6))
-        df.boxplot(column=selected_feature, by='Placement', ax=ax,
-                   patch_artist=True, grid=False)
-        ax.set_title(f'{selected_feature} Distribution by Placement Status',
-                     fontsize=14, fontweight='bold')
-        ax.set_xlabel('Placement Status', fontsize=12)
-        ax.set_ylabel(selected_feature, fontsize=12)
-        plt.suptitle('')  # Remove the automatic title
+        # 1. Setup Figure (Full Width)
+        fig, ax = plt.subplots(figsize=(12, 6))
+        
+        # Set Dark Backgrounds
+        fig.patch.set_facecolor('#0f172a')
+        ax.set_facecolor('#1e293b')
+
+        # 2. Create Boxplot with Seaborn (Best for Styling)
+        # Using the colors from your histograms: Green for Placed, Red for Not Placed
+        sns.boxplot(x='Placement', 
+                    y=selected_feature_box, 
+                    data=df, 
+                    ax=ax,
+                    palette={'Yes': '#51cf66', 'No': '#ff6b6b'}, # Theme Colors
+                    linewidth=1.5,
+                    width=0.4, # Narrower boxes look cleaner
+                    # Style the outlier dots (fliers) to be bright yellow for visibility
+                    flierprops={'marker': 'o', 'markerfacecolor': '#ffc107', 
+                                'markeredgecolor': '#ffc107', 'markersize': 5} 
+                   )
+
+        # 3. Style Text (White for Dark Mode)
+        ax.set_title(f'{selected_feature_box} Distribution by Placement Status', 
+                     fontsize=14, fontweight='bold', color='white')
+        ax.set_xlabel('Placement Status', fontsize=12, color='white')
+        ax.set_ylabel(selected_feature_box, fontsize=12, color='white')
+        
+        # 4. Style Ticks & Grid
+        ax.tick_params(axis='x', colors='white', labelsize=11)
+        ax.tick_params(axis='y', colors='white', labelsize=11)
+        ax.grid(True, axis='y', color='white', alpha=0.1) 
+
+        # Remove top and right spines
+        sns.despine()
+
         plt.tight_layout()
-        st.pyplot(fig)
+        # Set transparent=False to ensure the axes background color is visible
+        st.pyplot(fig, transparent=False) 
         plt.close()
     
     # ============================================================================
