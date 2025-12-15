@@ -214,14 +214,14 @@ def main():
         # Research Statement
         st.markdown("### Research Statement")
         st.info("""
-        **Primary Goal:** To predict the target variable (**Placement**) and determine exactly how much 
-        influence different predictor variables (like Communication Skills, CGPA, IQ, etc.) have on that outcome.
+        **Primary Goal:** To predict a students placement and determine exactly how much the 
+         different factors (like Communication Skills, CGPA, IQ, etc.) influence that outcome.
         """)
 
         # Placement Definition
         st.markdown("#### What is placement?")
         st.info("""
-        placement refers to whether a student successfully secures a job offer through campus recruitment - essentially, 
+        Placement refers to whether a student successfully secures a job offer through campus recruitment - essentially, 
         getting hired by a company that visits the college to recruit graduates.
 
         """)
@@ -473,11 +473,11 @@ def main():
                     box-shadow: 0 8px 16px rgba(0,0,0,0.4);'>
             <div style='text-align: center; margin-bottom: 25px;'>
                 <h3 style='color: white; margin: 0; font-size: 1.5rem; font-weight: 700;'>
-                    🎯 Model Comparison: Random vs. Trained
+                    🎯 Model Comparison: Baseline vs. Trained
                 </h3>
             </div>
             <!-- Model Comparison Cards -->
-            <div style='display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: center; margin-bottom: 25px;'>
+            <div style='display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: center;'>
                 <!-- NULL MODEL -->
                 <div style='background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%); 
                             padding: 20px; 
@@ -485,10 +485,10 @@ def main():
                             border: 2px solid #991b1b;
                             text-align: center;'>
                     <div style='color: #fca5a5; font-weight: bold; font-size: 1rem; margin-bottom: 8px;'>
-                        🔴 RANDOM BASELINE
+                        🔴 NULL BASELINE
                     </div>
                     <div style='color: #fca5a5; font-size: 0.85rem; margin-bottom: 12px;'>
-                        "Always guesses the majority class"
+                        "Always predicts 'Not Placed'"
                     </div>
                     <div style='font-size: 2.2rem; font-weight: bold; color: white; margin: 10px 0;'>
                         {null_accuracy:.1%}
@@ -496,6 +496,9 @@ def main():
                     <div style='color: #fca5a5; font-size: 0.85rem; background-color: rgba(0,0,0,0.2); 
                                 padding: 6px; border-radius: 5px; margin-top: 8px;'>
                         Accuracy
+                    </div>
+                    <div style='color: #fca5a5; font-size: 0.75rem; margin-top: 10px; font-style: italic;'>
+                        ❌ Never identifies successful students
                     </div>
                 </div>
                 <!-- VS SEPARATOR -->
@@ -514,10 +517,10 @@ def main():
                             border: 2px solid #2563eb;
                             text-align: center;'>
                     <div style='color: #93c5fd; font-weight: bold; font-size: 1rem; margin-bottom: 8px;'>
-                        🔵 OUR MODEL
+                        🔵 OUR TRAINED MODEL
                     </div>
                     <div style='color: #93c5fd; font-size: 0.85rem; margin-bottom: 12px;'>
-                        "Uses all 7 predictors"
+                        "Uses all 8 predictors"
                     </div>
                     <div style='font-size: 2.2rem; font-weight: bold; color: white; margin: 10px 0;'>
                         {model_accuracy:.1%}
@@ -526,51 +529,30 @@ def main():
                                 padding: 6px; border-radius: 5px; margin-top: 8px;'>
                         Accuracy
                     </div>
+                    <div style='color: #93c5fd; font-size: 0.75rem; margin-top: 10px; font-style: italic;'>
+                        ✅ Identifies BOTH placed AND not placed
+                    </div>
                 </div>
             </div>
-            <!-- Statistical Test Results -->
+            <!-- Key Insight -->
             <div style='background: linear-gradient(135deg, rgba(34,197,94,0.15) 0%, rgba(34,197,94,0.25) 100%); 
                         border: 2px solid #22c55e; 
                         border-radius: 12px; 
-                        padding: 20px;'>
-                <div style='text-align: center; margin-bottom: 15px;'>
-                    <div style='color: #22c55e; font-weight: bold; font-size: 1.3rem; margin-bottom: 8px;'>
-                        ✅ NOT JUST LUCK - STATISTICALLY PROVEN
-                    </div>
-                    <div style='color: #86efac; font-size: 0.9rem;'>
-                        Chi-Squared Test confirms our model significantly outperforms random guessing
-                    </div>
+                        padding: 20px;
+                        margin-top: 25px;
+                        text-align: center;'>
+                <div style='color: #22c55e; font-weight: bold; font-size: 1.3rem; margin-bottom: 8px;'>
+                    ✅ STATISTICALLY VALIDATED
                 </div>
-                <!-- Key Metrics -->
-                <div style='display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px;'>
-                    <div style='background-color: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; text-align: center;'>
-                        <div style='color: #86efac; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px;'>
-                            CHI-SQUARED STATISTIC
-                        </div>
-                        <div style='color: white; font-size: 1.8rem; font-weight: bold; margin-bottom: 5px;'>
-                            {g_statistic:.2f}
-                        </div>
-                        <div style='color: #cbd5e1; font-size: 0.75rem;'>
-                            Measures improvement over baseline
-                        </div>
-                    </div>
-                    <div style='background-color: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; text-align: center;'>
-                        <div style='color: #86efac; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px;'>
-                            P-VALUE
-                        </div>
-                        <div style='color: white; font-size: 1.8rem; font-weight: bold; margin-bottom: 5px;'>
-                            < 0.001
-                        </div>
-                        <div style='color: #cbd5e1; font-size: 0.75rem;'>
-                            Probability this is random chance
-                        </div>
-                    </div>
+                <div style='color: #86efac; font-size: 0.95rem; line-height: 1.6;'>
+                    Likelihood Ratio Test confirms our model significantly outperforms the baseline.<br>
+                    With p-value < 0.001, we're 99.9% confident this is real predictive power, not luck.
                 </div>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
-        # --- SIMPLE INTERPRETATION ---
+       # --- SIMPLE INTERPRETATION ---
         st.markdown("#### 💡 What This Means")
 
         col1, col2 = st.columns(2)
@@ -600,12 +582,12 @@ def main():
                         border-radius: 10px; 
                         border-left: 4px solid #22c55e;
                         height: 100%;'>
-                <h4 style='color: #86efac; margin-top: 0; font-size: 1.1rem;'>✅ Statistical Proof</h4>
+                <h4 style='color: #86efac; margin-top: 0; font-size: 1.1rem;'>✅ Statistical Validation</h4>
                 <p style='color: #e2e8f0; font-size: 0.9rem; line-height: 1.6;'>
-                    The Chi-Squared statistic of <b style='color: #86efac;'>{g_statistic:.1f}</b> 
-                    with p-value < 0.001 proves our model's predictions are 
-                    <b>significantly better than random chance</b>.<br><br>
-                    Our predictors (CGPA, IQ, Communication, etc.) genuinely predict placement outcomes.
+                    The <b style='color: #86efac;'>Likelihood Ratio Test</b> proves our model's 
+                    predictions are significantly better than the baseline.<br><br>
+                    With <b>p-value < 0.001</b>, we're 99.9% confident our predictors (CGPA, IQ, 
+                    Communication, etc.) genuinely predict placement outcomes—not random luck.
                 </p>
             </div>
             """, unsafe_allow_html=True)
