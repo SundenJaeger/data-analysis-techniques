@@ -1882,16 +1882,31 @@ def main():
             *The high precision means if the model says you are at risk, you should take it seriously.*
             """)
             
-            # Simplified chart
+            # Simplified dark-themed chart
             fig, ax = plt.subplots(figsize=(8, 4))
+            fig.patch.set_facecolor('#0f172a')  # figure background
+            ax.set_facecolor('#1e293b')         # plot background
+
             metrics = ['Accuracy', 'ROC-AUC', 'Precision (Not Placed)']
             values = [0.90, 0.94, 0.93]
-            ax.bar(metrics, values, color='#1f77b4', alpha=0.7)
+
+            # Bars with theme colors
+            colors = ['#3b82f6', '#22c55e', '#facc15']  # blue, green, yellow
+            bars = ax.bar(metrics, values, color=colors, alpha=0.7)
+
             ax.set_ylim([0, 1])
+            ax.set_title('Key Performance Metrics', fontsize=14, fontweight='bold', color='white')
+            ax.tick_params(colors='white')  # x and y ticks white
+            ax.yaxis.label.set_color('white')  # y-axis label if any
+            ax.xaxis.label.set_color('white')  # x-axis label if any
+            ax.grid(True, color='white', alpha=0.1, axis='y')
+
+            # Add value labels in white
             for i, v in enumerate(values):
-                ax.text(i, v + 0.05, f'{v:.2f}', ha='center', fontweight='bold')
-            ax.set_title('Key Performance Metrics')
-            st.pyplot(fig)
+                ax.text(i, v + 0.02, f'{v:.2f}', ha='center', fontweight='bold', color='white')
+
+            plt.tight_layout()
+            st.pyplot(fig, transparent=True)
             plt.close()
 
         with tab2:
