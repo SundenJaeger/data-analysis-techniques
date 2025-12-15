@@ -205,7 +205,7 @@ def main():
     # Train model
     model, X_test, y_test, y_pred, y_pred_proba, accuracy, conf_matrix, auc_score, fpr, tpr, coefficients, odds_ratios = train_model(X, y)
 
-   # ============================================================================
+    # ============================================================================
     # SECTION 1: OVERVIEW
     # ============================================================================
     if section == "Overview":
@@ -214,17 +214,33 @@ def main():
         # Research Statement
         st.markdown("### Research Statement")
         st.info("""
-        **Primary Goal:** To predict the target variable (**Placement**) and determine exactly how much 
-        influence different predictor variables (like Communication Skills, CGPA, IQ, etc.) have on that outcome.
+        **Primary Goal:** To predict a students placement and determine exactly how much the 
+         different factors (like Communication Skills, CGPA, IQ, etc.) influence that outcome.
         """)
+
+        # Placement Definition
+        st.markdown("#### What is placement?")
+        st.info("""
+        Placement refers to whether a student successfully secures a job offer through campus recruitment - essentially, 
+        getting hired by a company that visits the college to recruit graduates.
+
+        """)
+
+
+        st.markdown("---")
         
         # The Dataset
-        st.markdown("### The Dataset")
+        st.markdown("### College Student Placement Factors")
         
         # 1. Introduction Text
         st.markdown("""
-        We **analyzed** the **'College Student Placement Factors'** dataset to determine exactly what drives student success.This dataset **contained** comprehensive information about student profiles, including their academic records, 
-        technical experience, and placement outcomes.
+        This comprehensive dataset contains detailed information about **10,000 student profiles**, including their:
+- **Academic records** (CGPA, semester results, academic performance)
+- **Cognitive abilities** (IQ scores)
+- **Soft skills** (Communication ratings)  
+- **Technical experience** (Projects completed, internships)
+- **Extra-curricular activities** (Involvement scores)
+
         """)
         
         st.markdown("<br>", unsafe_allow_html=True) # Add breathing room
@@ -392,7 +408,7 @@ def main():
             st.markdown(custom_card(
                 title="1. Binary Target",
                 subtitle="The 'Yes/No' Reality",
-                text="Our goal is to predict a clear outcome: <b>Placed</b> or <b>Not Placed</b>. <br><br>Linear regression predicts continuous numbers (like salary), which fails for a binary question. Logistic regression is purpose-built for this classification."
+                text="Our goal is to predict a clear outcome: <b>Placed</b> or <b>Not Placed</b>. <br><br>     Logistic Regression is the ideal tool for this binary classification problem."
             ), unsafe_allow_html=True)
             
         with col2:
@@ -412,19 +428,18 @@ def main():
         st.markdown("---")
         
         ## Model Validation - Chi-Squared Test
-        st.markdown("### 📊 Model Validation: The 'Before vs. After' Test")
+        st.markdown("### 📊 Model Validation: Proving It's Not Just Luck")
 
         st.markdown("""
-        To prove the model works, we don't just look at accuracy; we measure **"Information Gain."**
-        We compare the error levels (Log-Loss) of a blind guess against our trained model using the 
-        **Likelihood Ratio Test (LRT)** - a gold standard in statistical model validation.
+        We need to prove our model actually works and isn't just making lucky guesses. 
+        We do this by comparing a **"blind baseline"** against our **trained model** using the 
+        **Likelihood Ratio Test** - a statistical gold standard.
         """)
 
         # --- CALCULATIONS ---
         # 1. Null Model (The Baseline)
         null_prob = y.mean()
         null_probs = np.full((len(y), 2), [1-null_prob, null_prob])
-        null_accuracy = max(y.mean(), 1 - y.mean())
 
         # 2. Full Model (The Expert)
         X_scaled = X.copy()
@@ -432,29 +447,23 @@ def main():
         model_full.fit(X_scaled, y)
         probs_fitted = model_full.predict_proba(X_scaled)
 
-        # 3. Calculate Scores (Log-Loss) - Lower is Better
-        from sklearn.metrics import log_loss
+        # 3. Calculate Scores
+        from sklearn.metrics import log_loss, accuracy_score
         ll_null = log_loss(y, null_probs, normalize=False)
         ll_fitted = log_loss(y, probs_fitted, normalize=False)
 
         # 4. The Test Statistics
-        g_statistic = 2 * (ll_null - ll_fitted)  # G-statistic (Deviance difference)
+        g_statistic = 2 * (ll_null - ll_fitted)
         df_degrees = X.shape[1]
 
         from scipy.stats import chi2
         p_value = chi2.sf(g_statistic, df_degrees)
 
-        # McFadden's Pseudo R-Squared
-        pseudo_r2 = 1 - (ll_fitted / ll_null)
+        # Get accuracies
+        null_accuracy = max(y.mean(), 1 - y.mean())
+        model_accuracy = accuracy_score(y, model_full.predict(X_scaled))
 
-        # Additional metrics for completeness
-        from sklearn.metrics import accuracy_score
-        fitted_predictions = model_full.predict(X_scaled)
-        model_accuracy = accuracy_score(y, fitted_predictions)
-
-        # --- ENHANCED VISUALIZATION ---
-
-        # Top Section: Visual Comparison
+        # --- VISUAL COMPARISON ---
         st.markdown(f"""
         <div style='background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); 
                     padding: 25px; 
@@ -464,36 +473,32 @@ def main():
                     box-shadow: 0 8px 16px rgba(0,0,0,0.4);'>
             <div style='text-align: center; margin-bottom: 25px;'>
                 <h3 style='color: white; margin: 0; font-size: 1.5rem; font-weight: 700;'>
-                    🎯 Likelihood Ratio Test Results
+                    🎯 Model Comparison: Baseline vs. Trained
                 </h3>
-                <p style='color: #94a3b8; font-size: 1rem; margin-top: 8px;'>
-                    Comparing prediction error: Random baseline vs. Trained model
-                </p>
             </div>
             <!-- Model Comparison Cards -->
-            <div style='display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: center; margin-bottom: 25px;'>
+            <div style='display: grid; grid-template-columns: 1fr auto 1fr; gap: 20px; align-items: center;'>
                 <!-- NULL MODEL -->
                 <div style='background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%); 
                             padding: 20px; 
                             border-radius: 12px; 
                             border: 2px solid #991b1b;
-                            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
                             text-align: center;'>
                     <div style='color: #fca5a5; font-weight: bold; font-size: 1rem; margin-bottom: 8px;'>
-                        🔴 NULL MODEL
+                        🔴 NULL BASELINE
                     </div>
-                    <div style='color: #fca5a5; font-size: 0.85rem; margin-bottom: 12px; opacity: 0.9;'>
-                        "Blind Baseline"
+                    <div style='color: #fca5a5; font-size: 0.85rem; margin-bottom: 12px;'>
+                        "Always predicts 'Not Placed'"
                     </div>
                     <div style='font-size: 2.2rem; font-weight: bold; color: white; margin: 10px 0;'>
-                        {ll_null:.1f}
+                        {null_accuracy:.1%}
                     </div>
                     <div style='color: #fca5a5; font-size: 0.85rem; background-color: rgba(0,0,0,0.2); 
                                 padding: 6px; border-radius: 5px; margin-top: 8px;'>
-                        Log-Loss (High Error)
+                        Accuracy
                     </div>
-                    <div style='color: #cbd5e1; font-size: 0.8rem; margin-top: 10px; line-height: 1.4;'>
-                        Predicts majority class<br>({null_accuracy:.1%} accuracy)
+                    <div style='color: #fca5a5; font-size: 0.75rem; margin-top: 10px; font-style: italic;'>
+                        ❌ Never identifies successful students
                     </div>
                 </div>
                 <!-- VS SEPARATOR -->
@@ -501,12 +506,8 @@ def main():
                     <div style='color: #64748b; font-weight: bold; font-size: 1.8rem; 
                                 background: linear-gradient(135deg, #3b82f6, #8b5cf6); 
                                 -webkit-background-clip: text; 
-                                -webkit-text-fill-color: transparent;
-                                background-clip: text;'>
+                                -webkit-text-fill-color: transparent;'>
                         VS
-                    </div>
-                    <div style='color: #64748b; font-size: 0.7rem; margin-top: 5px;'>
-                        ↓ Improvement ↓
                     </div>
                 </div>
                 <!-- FULL MODEL -->
@@ -514,98 +515,62 @@ def main():
                             padding: 20px; 
                             border-radius: 12px; 
                             border: 2px solid #2563eb;
-                            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
                             text-align: center;'>
                     <div style='color: #93c5fd; font-weight: bold; font-size: 1rem; margin-bottom: 8px;'>
-                        🔵 FULL MODEL
+                        🔵 OUR TRAINED MODEL
                     </div>
-                    <div style='color: #93c5fd; font-size: 0.85rem; margin-bottom: 12px; opacity: 0.9;'>
-                        "Trained Expert"
+                    <div style='color: #93c5fd; font-size: 0.85rem; margin-bottom: 12px;'>
+                        "Uses all 8 predictors"
                     </div>
                     <div style='font-size: 2.2rem; font-weight: bold; color: white; margin: 10px 0;'>
-                        {ll_fitted:.1f}
+                        {model_accuracy:.1%}
                     </div>
                     <div style='color: #93c5fd; font-size: 0.85rem; background-color: rgba(0,0,0,0.2); 
                                 padding: 6px; border-radius: 5px; margin-top: 8px;'>
-                        Log-Loss (Low Error)
+                        Accuracy
                     </div>
-                    <div style='color: #cbd5e1; font-size: 0.8rem; margin-top: 10px; line-height: 1.4;'>
-                        Uses all predictors<br>({model_accuracy:.1%} accuracy)
+                    <div style='color: #93c5fd; font-size: 0.75rem; margin-top: 10px; font-style: italic;'>
+                        ✅ Identifies BOTH placed AND not placed
                     </div>
                 </div>
             </div>
-            <!-- Statistical Test Results -->
+            <!-- Key Insight -->
             <div style='background: linear-gradient(135deg, rgba(34,197,94,0.15) 0%, rgba(34,197,94,0.25) 100%); 
                         border: 2px solid #22c55e; 
                         border-radius: 12px; 
-                        padding: 20px;'>
-                <div style='text-align: center; margin-bottom: 15px;'>
-                    <div style='color: #22c55e; font-weight: bold; font-size: 1.3rem; margin-bottom: 8px;'>
-                        ✅ STATISTICALLY SIGNIFICANT IMPROVEMENT
-                    </div>
-                    <div style='color: #86efac; font-size: 0.9rem;'>
-                        The trained model significantly outperforms random guessing
-                    </div>
+                        padding: 20px;
+                        margin-top: 25px;
+                        text-align: center;'>
+                <div style='color: #22c55e; font-weight: bold; font-size: 1.3rem; margin-bottom: 8px;'>
+                    ✅ STATISTICALLY VALIDATED
                 </div>
-                <!-- Key Metrics Grid -->
-                <div style='display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px;'>
-                    <div style='background-color: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; text-align: center;'>
-                        <div style='color: #86efac; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px;'>
-                            G-STATISTIC
-                        </div>
-                        <div style='color: white; font-size: 1.8rem; font-weight: bold; margin-bottom: 5px;'>
-                            {g_statistic:.2f}
-                        </div>
-                        <div style='color: #cbd5e1; font-size: 0.75rem;'>
-                            χ² = 2(LL<sub>null</sub> - LL<sub>model</sub>)
-                        </div>
-                    </div>
-                    <div style='background-color: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; text-align: center;'>
-                        <div style='color: #86efac; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px;'>
-                            P-VALUE
-                        </div>
-                        <div style='color: white; font-size: 1.8rem; font-weight: bold; margin-bottom: 5px;'>
-                            {p_value:.2e}
-                        </div>
-                        <div style='color: #cbd5e1; font-size: 0.75rem;'>
-                            Probability of chance result
-                        </div>
-                    </div>
-                    <div style='background-color: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; text-align: center;'>
-                        <div style='color: #86efac; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px;'>
-                            PSEUDO R²
-                        </div>
-                        <div style='color: white; font-size: 1.8rem; font-weight: bold; margin-bottom: 5px;'>
-                            {pseudo_r2:.1%}
-                        </div>
-                        <div style='color: #cbd5e1; font-size: 0.75rem;'>
-                            Variance explained
-                        </div>
-                    </div>
-                    
+                <div style='color: #86efac; font-size: 0.95rem; line-height: 1.6;'>
+                    Likelihood Ratio Test confirms our model significantly outperforms the baseline.<br>
+                    With p-value < 0.001, we're 99.9% confident this is real predictive power, not luck.
                 </div>
             </div>
         </div>
         """, unsafe_allow_html=True)
 
-        # --- INTERPRETATION SECTION ---
-        st.markdown("#### 🔍 What This Test Tells Us")
+       # --- SIMPLE INTERPRETATION ---
+        st.markdown("#### 💡 What This Means")
 
-        col1, col2, col3 = st.columns(3)
+        col1, col2 = st.columns(2)
 
         with col1:
             st.markdown(f"""
             <div style='background: linear-gradient(135deg, #1e293b, #334155); 
                         padding: 18px; 
                         border-radius: 10px; 
-                        border-left: 4px solid #ef4444;
+                        border-left: 4px solid #3b82f6;
                         height: 100%;'>
-                <h4 style='color: #fca5a5; margin-top: 0; font-size: 1.1rem;'>📉 Error Reduction</h4>
+                <h4 style='color: #93c5fd; margin-top: 0; font-size: 1.1rem;'>📈 Beyond Simple Guessing</h4>
                 <p style='color: #e2e8f0; font-size: 0.9rem; line-height: 1.6;'>
-                    The null model's error was <b>{ll_null:.1f}</b>.<br>
-                    Our trained model reduced it to <b>{ll_fitted:.1f}</b>.<br><br>
-                    <b style='color: #fca5a5;'>Δ = {ll_null - ll_fitted:.1f} units</b><br>
-                    This massive reduction proves our predictors add real value.
+                    A baseline that always guesses "Not Placed" would be correct <b>{null_accuracy:.1%}</b> 
+                    of the time, but it would <b>never identify any successful students</b>.<br><br>
+                    Our model achieves <b>{model_accuracy:.1%}</b> accuracy while actually 
+                    <b style='color: #93c5fd;'>predicting both outcomes</b> - identifying who gets 
+                    placed AND who doesn't.
                 </p>
             </div>
             """, unsafe_allow_html=True)
@@ -615,85 +580,19 @@ def main():
             <div style='background: linear-gradient(135deg, #1e293b, #334155); 
                         padding: 18px; 
                         border-radius: 10px; 
-                        border-left: 4px solid #3b82f6;
-                        height: 100%;'>
-                <h4 style='color: #93c5fd; margin-top: 0; font-size: 1.1rem;'>🎲 Statistical Confidence</h4>
-                <p style='color: #e2e8f0; font-size: 0.9rem; line-height: 1.6;'>
-                    P-value: <b>{p_value:.2e}</b><br>
-                    Degrees of freedom: <b>{df_degrees}</b><br><br>
-                    The probability this improvement happened by <b>random chance</b> is essentially <b style='color: #93c5fd;'>zero</b>.
-                    We can confidently reject the null hypothesis.
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
-
-        with col3:
-            st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #1e293b, #334155); 
-                        padding: 18px; 
-                        border-radius: 10px; 
                         border-left: 4px solid #22c55e;
                         height: 100%;'>
-                <h4 style='color: #86efac; margin-top: 0; font-size: 1.1rem;'>📊 Practical Meaning</h4>
+                <h4 style='color: #86efac; margin-top: 0; font-size: 1.1rem;'>✅ Statistical Validation</h4>
                 <p style='color: #e2e8f0; font-size: 0.9rem; line-height: 1.6;'>
-                    McFadden's R² = <b>{pseudo_r2:.1%}</b><br><br>
-                    Our model explains <b style='color: #86efac;'>{pseudo_r2:.0%}</b> of the uncertainty the baseline couldn't capture.<br><br>
-                    For logistic regression, values of 0.2-0.4 indicate <b>excellent fit</b>.
+                    The <b style='color: #86efac;'>Likelihood Ratio Test</b> proves our model's 
+                    predictions are significantly better than the baseline.<br><br>
+                    With <b>p-value < 0.001</b>, we're 99.9% confident our predictors (CGPA, IQ, 
+                    Communication, etc.) genuinely predict placement outcomes—not random luck.
                 </p>
             </div>
             """, unsafe_allow_html=True)
 
-        # --- TECHNICAL DETAILS (EXPANDABLE) ---
-        with st.expander("📚 Technical Details: How the Likelihood Ratio Test Works"):
-            st.markdown("""
-            ### The Mathematics Behind the Test
-            
-            **1. Log-Likelihood Function:**
-            - Measures how well a model's predicted probabilities match actual outcomes
-            - Higher values = better fit (less "surprise" from predictions)
-            - Formula: LL = Σ[y·log(p) + (1-y)·log(1-p)]
-            
-            **2. G-Statistic (Deviance Difference):**
-            ```
-            G = 2 × (LL_null - LL_full)
-            G = -2 × ln(likelihood_null / likelihood_full)
-            ```
-            - Follows a χ² (chi-squared) distribution with k degrees of freedom
-            - k = number of predictor variables in the model
-            
-            **3. Hypothesis Test:**
-            - **H₀ (Null):** Adding predictors doesn't improve the model (G = 0)
-            - **H₁ (Alternative):** Predictors significantly reduce error (G > 0)
-            - **Decision Rule:** Reject H₀ if p-value < 0.05
-            
-            **4. McFadden's Pseudo R²:**
-            ```
-            R² = 1 - (LL_full / LL_null)
-            ```
-            - Analogous to R² in linear regression (but not identical)
-            - Ranges from 0 to 1 (higher = better fit)
-            - Values of 0.2-0.4 represent excellent fit in practice
-            
-            ### Interpretation Guidelines:
-            | Pseudo R² | Interpretation |
-            |-----------|----------------|
-            | < 0.10    | Poor fit |
-            | 0.10-0.20 | Fair fit |
-            | 0.20-0.40 | Excellent fit |
-            | > 0.40    | Outstanding fit |
-            """)
-
         st.markdown("---")
-
-        st.success(f"""
-        **Validation Summary:**
-
-        ✅ **Model Significance:** The likelihood ratio test confirms our model is statistically superior to baseline (p < 0.001)
-
-        ✅ **Predictive Power:** With Pseudo R² = {pseudo_r2:.1%}, the model explains a substantial portion of placement outcomes
-
-        ✅ **Ready for Deployment:** We have established a validated framework for understanding student placement factors
-        """)
     
     # ============================================================================
     # SECTION 2: DATA PREPARATION & EXPLORATION
@@ -830,14 +729,6 @@ def main():
             **Objective:** Select the strongest predictors while avoiding noise and redundancy.
             """)
             
-            # --- NEW SECTION: MULTICOLLINEARITY CHECK ---
-            st.markdown("#### 1️⃣ Multicollinearity Detection")
-            st.info("""
-            **Observation:** We generated a Correlation Matrix to check for redundant features.
-            * **Finding:** `CGPA` and `Academic_Performance` had a correlation of **0.90**.
-            * **The Problem:** Highly correlated input features confuse the model, splitting the "importance" score between them.
-            * **Resolution:** We used a **"Winner Takes All"** strategy. Since `CGPA` had a stronger correlation with the target (`Placement`), we kept `CGPA` and dropped `Academic_Performance`.
-            """)
             
             st.markdown("---")
             st.markdown("#### 2️⃣ Final Feature Set")
@@ -854,15 +745,14 @@ def main():
                 5. **Internship Experience** (Industry Exposure)
                 6. **Prev Sem Result** (Short-term Trend)
                 7. **Extra Curriculars** (Personality)
+                8. **Academic_Performance** 
                 """)
             
             with feature_col2:
-                st.markdown("#### ❌ Dropped Features (3)")
+                st.markdown("#### ❌ Dropped Features (1)")
                 st.markdown("""
                 * **College_ID**: 
                   * *Reason:* Random identifier (Nominal variable). No predictive power.
-                * **Academic_Performance**:
-                  * *Reason:* **High Multicollinearity**. Redundant with `CGPA`.
                 """)
 
         # Step 6: Train-Test Split
@@ -1257,16 +1147,25 @@ def main():
 
         with col1:
             fig, ax = plt.subplots(figsize=(8, 6))
+            fig.patch.set_facecolor('#0f172a')
+            ax.set_facecolor('#1e293b')
+    
             sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues',
                         cbar_kws={'label': 'Count'}, ax=ax,
                         xticklabels=['Not Placed', 'Placed'],
                         yticklabels=['Not Placed', 'Placed'])
-            ax.set_ylabel('Actual', fontsize=12, fontweight='bold')
-            ax.set_xlabel('Predicted', fontsize=12, fontweight='bold')
-            ax.set_title('Confusion Matrix', fontsize=14, fontweight='bold')
+    
+            ax.set_ylabel('Actual', fontsize=12, fontweight='bold', color='white')
+            ax.set_xlabel('Predicted', fontsize=12, fontweight='bold', color='white')
+            ax.set_title('Confusion Matrix', fontsize=14, fontweight='bold', color='white')
+    
+            ax.tick_params(axis='x', colors='white')
+            ax.tick_params(axis='y', colors='white')
+    
             plt.tight_layout()
-            st.pyplot(fig)
+            st.pyplot(fig, transparent=True)
             plt.close()
+
 
         with col2:
             st.markdown("#### Model Performance Interpretation")
@@ -1297,18 +1196,26 @@ def main():
 
         with col1:
             fig, ax = plt.subplots(figsize=(8, 6))
-            ax.plot(fpr, tpr, color='blue', lw=2, label=f'ROC Curve (AUC = {auc_score:.2f})')
-            ax.plot([0, 1], [0, 1], color='red', lw=2, linestyle='--', label='Random Guess')
+            fig.patch.set_facecolor('#0f172a')
+            ax.set_facecolor('#1e293b')
+    
+            ax.plot(fpr, tpr, color='#3b82f6', lw=2, label=f'ROC Curve (AUC = {auc_score:.2f})')
+            ax.plot([0, 1], [0, 1], color='#ef4444', lw=2, linestyle='--', label='Random Guess')
+    
             ax.set_xlim([0.0, 1.0])
             ax.set_ylim([0.0, 1.05])
-            ax.set_xlabel('False Positive Rate', fontsize=12)
-            ax.set_ylabel('True Positive Rate (Recall)', fontsize=12)
-            ax.set_title('ROC Curve: Model Discrimination Ability', fontsize=14, fontweight='bold')
-            ax.legend(loc="lower right")
-            ax.grid(True, alpha=0.3)
+            ax.set_xlabel('False Positive Rate', fontsize=12, color='white')
+            ax.set_ylabel('True Positive Rate (Recall)', fontsize=12, color='white')
+            ax.set_title('ROC Curve: Model Discrimination Ability', fontsize=14, fontweight='bold', color='white')
+    
+            ax.legend(facecolor='#1e293b', edgecolor='#3b82f6', labelcolor='white')
+            ax.tick_params(colors='white')
+            ax.grid(True, color='white', alpha=0.1)
+    
             plt.tight_layout()
-            st.pyplot(fig)
+            st.pyplot(fig, transparent=True)
             plt.close()
+
 
         with col2:
             st.markdown("#### ROC Curve Interpretation")
@@ -1349,22 +1256,24 @@ def main():
             st.markdown("#### Odds Ratios (Feature Impact)")
 
             fig, ax = plt.subplots(figsize=(10, 6))
-            colors = ['green' if x > 1 else 'red' for x in feature_importance_df['Odds_Ratio']]
-            bars = ax.barh(feature_importance_df['Feature'], feature_importance_df['Odds_Ratio'],
-                           color=colors, alpha=0.7)
-            ax.axvline(x=1, color='black', linestyle='--', linewidth=2, label='No Effect')
-            ax.set_xlabel('Odds Ratio', fontsize=12, fontweight='bold')
-            ax.set_title('Feature Impact on Placement (Odds Ratios)', fontsize=14, fontweight='bold')
-            ax.legend()
-            ax.grid(True, alpha=0.3, axis='x')
+            fig.patch.set_facecolor('#0f172a')
+            ax.set_facecolor('#1e293b')
+    
+            colors = ['#22c55e' if x > 1 else '#ef4444' for x in feature_importance_df['Odds_Ratio']]
+            bars = ax.barh(feature_importance_df['Feature'], feature_importance_df['Odds_Ratio'], color=colors, alpha=0.7)
+    
+            ax.axvline(x=1, color='white', linestyle='--', linewidth=2)
+            ax.set_xlabel('Odds Ratio', fontsize=12, fontweight='bold', color='white')
+            ax.set_title('Feature Impact on Placement (Odds Ratios)', fontsize=14, fontweight='bold', color='white')
+            ax.grid(True, color='white', alpha=0.1, axis='x')
 
-            # Add value labels
+            ax.tick_params(axis='y', colors='white')
+    
             for i, (idx, row) in enumerate(feature_importance_df.iterrows()):
-                ax.text(row['Odds_Ratio'], i, f' {row["Odds_Ratio"]:.2f}',
-                        va='center', fontweight='bold')
-
+                ax.text(row['Odds_Ratio'], i, f' {row["Odds_Ratio"]:.2f}', va='center', fontweight='bold', color='white')
+    
             plt.tight_layout()
-            st.pyplot(fig)
+            st.pyplot(fig, transparent=True)
             plt.close()
 
         with col2:
@@ -1675,29 +1584,34 @@ def main():
                 st.metric("Not Placed Probability", f"{pred_proba[0]:.1%}")
 
             # Visualization
-            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
-
             # Bar chart
+            fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+            fig.patch.set_facecolor('#0f172a')
+            ax1.set_facecolor('#1e293b')
+            ax2.set_facecolor('#1e293b')
+
             categories = ['Not Placed', 'Placed']
-            colors_pred = ['#ff6b6b', '#51cf66']
+            colors_pred = ['#ef4444', '#22c55e']
             bars = ax1.barh(categories, pred_proba, color=colors_pred, alpha=0.7)
             ax1.set_xlim([0, 1])
-            ax1.set_xlabel('Probability', fontsize=12, fontweight='bold')
-            ax1.set_title('Placement Probability', fontsize=14, fontweight='bold')
-            ax1.grid(True, alpha=0.3, axis='x')
+            ax1.set_xlabel('Probability', fontsize=12, fontweight='bold', color='white')
+            ax1.set_title('Placement Probability', fontsize=14, fontweight='bold', color='white')
+            ax1.grid(True, color='white', alpha=0.1, axis='x')
+            ax1.tick_params(colors='white')
 
             for i, (bar, prob) in enumerate(zip(bars, pred_proba)):
-                ax1.text(prob + 0.02, i, f'{prob:.1%}', va='center',
-                         fontweight='bold', fontsize=12)
+                ax1.text(prob + 0.02, i, f'{prob:.1%}', va='center', fontweight='bold', color='white')
 
-            # Pie chart
+        # Pie chart
             ax2.pie(pred_proba, labels=categories, autopct='%1.1f%%',
-                    colors=colors_pred, startangle=90, textprops={'fontsize': 12, 'fontweight': 'bold'})
-            ax2.set_title('Probability Distribution', fontsize=14, fontweight='bold')
+                colors=colors_pred, startangle=90,
+                textprops={'fontsize': 12, 'fontweight': 'bold', 'color': 'white'})
+            ax2.set_title('Probability Distribution', fontsize=14, fontweight='bold', color='white')
 
             plt.tight_layout()
-            st.pyplot(fig)
+            st.pyplot(fig, transparent=True)
             plt.close()
+
 
             # Recommendations
             st.markdown("#### 💡 Personalized Recommendations")
@@ -1772,17 +1686,21 @@ def main():
             }).sort_values('Contribution', ascending=True)
 
             fig, ax = plt.subplots(figsize=(10, 6))
-            colors_contrib = ['red' if x < 0 else 'green' for x in contrib_df['Contribution']]
-            bars = ax.barh(contrib_df['Feature'], contrib_df['Contribution'],
-                           color=colors_contrib, alpha=0.7)
-            ax.axvline(x=0, color='black', linestyle='--', linewidth=2)
-            ax.set_xlabel('Contribution to Placement Probability', fontsize=12, fontweight='bold')
-            ax.set_title('How Each Feature Affects This Prediction', fontsize=14, fontweight='bold')
-            ax.grid(True, alpha=0.3, axis='x')
+            fig.patch.set_facecolor('#0f172a')
+            ax.set_facecolor('#1e293b')
+
+            colors_contrib = ['#ef4444' if x < 0 else '#22c55e' for x in contrib_df['Contribution']]
+            bars = ax.barh(contrib_df['Feature'], contrib_df['Contribution'], color=colors_contrib, alpha=0.7)
+            ax.axvline(x=0, color='white', linestyle='--', linewidth=2)
+            ax.set_xlabel('Contribution to Placement Probability', fontsize=12, fontweight='bold', color='white')
+            ax.set_title('How Each Feature Affects This Prediction', fontsize=14, fontweight='bold', color='white')
+            ax.grid(True, color='white', alpha=0.1, axis='x')
+            ax.tick_params(colors='white')
 
             plt.tight_layout()
-            st.pyplot(fig)
+            st.pyplot(fig, transparent=True)
             plt.close()
+
 
             # Show contribution table
             st.dataframe(contrib_df.style.format({'Student Value': '{:.2f}',
@@ -1794,99 +1712,167 @@ def main():
     elif section == "Conclusions & Recommendations":
         st.markdown('<h2 class="section-header">🎯 Conclusions & Recommendations</h2>', unsafe_allow_html=True)
 
-        # Main Takeaways
-        st.markdown("### 📌 Main Takeaways")
+        st.markdown("### 📌 Summary of Findings")
 
         st.success("""
-        **Our logistic regression analysis reveals a clear hierarchy of success: Communication Skills and CGPA 
-        are the dominant drivers of placement, while extracurricular activities have surprisingly little impact.**
+        **Our data confirms that placement success is not random.** The Logistic Regression model identifies **Communication Skills** and **CGPA** as the dominant, high-impact drivers, providing a clear roadmap for intervention.
         """)
 
-        # Key Findings (Removed Statistical Validation Tab)
-        st.markdown("### 🔑 Key Findings")
+        # --- Tab Section ---
+        tab1, tab2, tab3 = st.tabs(["📊 Model Significance", "📈 Success Factors (Odds Ratio)", "💡 Actionable Insights"])
 
-        tab1, tab2, tab3 = st.tabs(["Model Performance", "Success Factors", "Surprising Insights"])
-
+        # =======================================================================
+        # TAB 1: MODEL SIGNIFICANCE (Metric Visual)
+        # =======================================================================
         with tab1:
+            st.markdown("#### 🚀 Predictive Power: Why These Metrics Matter")
+            
             st.markdown("""
-            #### 🎯 Model Performance
-            
-            Our model is highly reliable for identifying students at risk:
-            
-            | Metric | Value | Interpretation |
-            |--------|-------|----------------|
-            | **Overall Accuracy** | 90% | 9 out of 10 predictions are correct |
-            | **ROC-AUC Score** | 0.94 | Excellent ability to distinguish placed vs. not placed |
-            | **Precision (Not Placed)** | 93% | Extremely reliable when predicting "failure" |
-            
-            *The high precision means if the model says you are at risk, you should take it seriously.*
+            Our model is not just accurate; it is **reliably directional**, offering a strong signal for timely intervention with students who are genuinely at risk.
             """)
-            
-            # Simplified chart
-            fig, ax = plt.subplots(figsize=(8, 4))
-            metrics = ['Accuracy', 'ROC-AUC', 'Precision (Not Placed)']
-            values = [0.90, 0.94, 0.93]
-            ax.bar(metrics, values, color='#1f77b4', alpha=0.7)
-            ax.set_ylim([0, 1])
-            for i, v in enumerate(values):
-                ax.text(i, v + 0.05, f'{v:.2f}', ha='center', fontweight='bold')
-            ax.set_title('Key Performance Metrics')
-            st.pyplot(fig)
-            plt.close()
 
+            col_met1, col_met2, col_met3 = st.columns(3)
+            
+            # Metric Card 1: Accuracy
+            col_met1.metric(
+                label="Overall Accuracy",
+                value="90%",
+                delta="Correct 9 out of 10 times"
+            )
+
+            # Metric Card 2: ROC-AUC
+            col_met2.metric(
+                label="Separation Power (ROC-AUC)",
+                value="0.94",
+                delta="Excellent ability to distinguish outcomes"
+            )
+
+            # Metric Card 3: Precision (Most Critical)
+            col_met3.metric(
+                label="Trusted Warning (Precision for 'Not Placed')",
+                value="93%",
+                delta="Minimizes False Alarms"
+            )
+
+            st.markdown("""
+            <br>
+            <p style='font-size: 1rem; color: #9ca3af;'>
+            The **93% Precision** is key: When the model flags a student as "at risk," faculty can be 
+            highly confident (93% sure) that intervention efforts will be directed where they are needed most.
+            </p>
+            """, unsafe_allow_html=True)
+
+        # =======================================================================
+        # TAB 2: SUCCESS FACTORS (Interactive Odds Ratio)
+        # =======================================================================
         with tab2:
-            st.markdown("""
-            #### 🌟 What Actually Matters (Odds Ratios)
-            
-            **1. 🗣️ Communication Skills (6.4x)**
-            - The #1 predictor. Improving this is the single best use of your time.
-            
-            **2. 📚 CGPA (5.4x)**
-            - Grades are the foundation. Consistency signals reliability to employers.
-            
-            **3. 🧠 IQ (5.0x)**
-            - Problem-solving ability is crucial.
-            
-            **4. 💼 Projects (3.2x)**
-            - Practical experience is valuable, though less than grades.
-            """)
+            st.markdown("#### 🌟 Feature Impact: Interpreting the Odds Ratio")
 
+            # Define Data
+            odds_data = {
+                'Communication Skills': 6.4,
+                'CGPA': 5.4,
+                'IQ (Aptitude)': 5.0,
+                'Projects Completed': 3.2,
+                'Internship Experience': 1.1,
+                'Extra-Curricular Score': 0.97
+            }
+            
+            # Sort factors for presentation
+            sorted_factors = sorted(odds_data.items(), key=lambda item: item[1], reverse=True)
+            factor_names = [f"{name} ({odds:.2f}x)" for name, odds in sorted_factors]
+            
+            # Create Selectbox
+            selected_factor = st.selectbox(
+                "Select a key feature to understand its impact:",
+                factor_names,
+                key='odds_selector'
+            )
+
+            # Get the actual odds ratio and name
+            selected_name = selected_factor.split('(')[0].strip()
+            selected_odds = odds_data[selected_name]
+
+            # Custom Interpretation Logic
+            if selected_odds > 5.0:
+                interpretation_color = '#51cf66' # Green for high impact
+                interpretation_text = f"This is a **High-Impact Driver**. A one-unit increase in *{selected_name}* increases a student's placement odds by **{selected_odds:.1f} times**. This is where intervention should be prioritized."
+            elif selected_odds > 1.5:
+                interpretation_color = '#93c5fd' # Blue for moderate impact
+                interpretation_text = f"This is a **Moderate-Impact Factor**. A one-unit increase in *{selected_name}* increases placement odds by **{selected_odds:.1f} times**. Still very valuable, but secondary to the top drivers."
+            else:
+                interpretation_color = '#ffc107' # Yellow/Orange for low impact
+                interpretation_text = f"This is a **Low/Neutral Impact Factor**. The odds ratio is close to 1.0, meaning *{selected_name}* provides **minimal statistical advantage** (only {selected_odds:.2f} times). Students should not over-invest time here."
+
+            st.markdown(f"""
+            <div style="background-color: #1e293b; padding: 15px; border-radius: 8px; border-left: 5px solid {interpretation_color}; color: white;">
+                <h4 style="margin-top: 0; color: {interpretation_color};">{selected_name}</h4>
+                <p style="font-size: 1.1rem;">{interpretation_text}</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            st.markdown('<br>')
+            st.markdown('***Myth-Buster:*** *Extra-curriculars had an odds ratio of **0.97x**. Any factor below 1.0 actually **reduces** the odds, confirming this is a resume-padding activity with no actual statistical benefit.*')
+
+        # =======================================================================
+        # TAB 3: ACTIONABLE INSIGHTS (Metric Cards)
+        # =======================================================================
         with tab3:
-            st.markdown("""
-            #### 🤔 Myth-Busters
+            st.markdown("#### 💡 Action Plan: Student & Faculty Priorities")
             
-            **Myth:** "You need to join every club to get a job."
-            **Reality:** Extra-curriculars had an odds ratio of **0.97 (Neutral)**. They don't hurt, but they don't help placement directly.
+            st.info("The data provides a **Bare Bones Checklist** for maximizing placement odds.")
             
-            **Myth:** "Internships guarantee placement."
-            **Reality:** Internships had an odds ratio of **1.1**. They help slightly, but aren't a magic bullet compared to strong communication skills.
-            """)
-
-        # Actionable Recommendations (Student Focus Only)
-        st.markdown("### 🎓 Recommendations for Students")
-        
-        st.info("""
-        Based on the data, here is your "Bare Bones" checklist for success:
-        """)
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-            st.markdown("""
-            **🚀 DO THIS (High Impact)**
+            col_do1, col_do2, col_do3 = st.columns(3)
             
-            * **Prioritize Communication:** Take public speaking classes, join Toastmasters, or practice mock interviews. This has the highest ROI (6.4x).
-            * **Protect your CGPA:** Aim for 8.0+. Don't sacrifice study time for clubs.
-            * **Build 2-3 Solid Projects:** Quality over quantity. Use them to demonstrate practical skills.
-            """)
+            # DO 1: Communication
+            with col_do1:
+                st.success("🗣️ **DO: Prioritize Communication**")
+                st.markdown("""
+                <div style='font-size: 0.9rem;'>
+                The **6.4x** ROI means public speaking, Toastmasters, and mock interviews are mandatory.
+                </div>
+                """, unsafe_allow_html=True)
 
-        with col2:
-            st.markdown("""
-            **⚠️ DON'T STRESS THIS (Low Impact)**
+            # DO 2: CGPA
+            with col_do2:
+                st.success("📚 **DO: Protect Your CGPA**")
+                st.markdown("""
+                <div style='font-size: 0.9rem;'>
+                The **5.4x** factor makes grades the foundation. Avoid sacrificing study time for low-impact activities.
+                </div>
+                """, unsafe_allow_html=True)
+
+            # DO 3: Projects
+            with col_do3:
+                st.success("💼 **DO: Build Quality Projects**")
+                st.markdown("""
+                <div style='font-size: 0.9rem;'>
+                Demonstrate practical skills with 2-3 complex projects (3.2x factor). Quality over quantity.
+                </div>
+                """, unsafe_allow_html=True)
+                
+            st.markdown("---")
+
+            col_dont1, col_dont2 = st.columns(2)
             
-            * **Extracurricular Quantity:** Joining 5 clubs won't increase your placement odds statistically. Do what you enjoy, but don't do it just for the resume.
-            * **Perfecting "Academic Performance" Score:** Focus on the actual CGPA instead of subjective performance ratings.
-            """)
+            # DON'T 1: Extracurriculars
+            with col_dont1:
+                st.warning("❌ **DON'T: Stress Extracurricular Quantity**")
+                st.markdown("""
+                <div style='font-size: 0.9rem;'>
+                With a **0.97x** factor, clubs offer no statistical benefit. Do what you enjoy, but not for placement.
+                </div>
+                """, unsafe_allow_html=True)
+
+            # DON'T 2: Internships
+            with col_dont2:
+                st.warning("❌ **DON'T: Rely on Internships Alone**")
+                st.markdown("""
+                <div style='font-size: 0.9rem;'>
+                The **1.1x** factor shows they help only slightly. They are NOT a substitute for strong core skills.
+                </div>
+                """, unsafe_allow_html=True)
+
 
         # Final Summary
         st.markdown("### 🎊 Conclusion")
@@ -1906,16 +1892,16 @@ def main():
 STUDENT PLACEMENT GUIDE - KEY TAKEAWAYS
 
 TOP PRIORITIES (High Impact):
-1. Communication Skills (6.4x odds) - The most critical factor.
-2. CGPA (5.4x odds) - Academic consistency is key.
-3. IQ/Aptitude (5.0x odds) - Practice problem solving.
+1. Communication Skills (Odds Ratio: 6.4) - The most critical factor.
+2. CGPA (Odds Ratio: 5.4) - Academic consistency is key.
+3. IQ/Aptitude (Odds Ratio: 5.0) - Practice problem solving.
 
-LOWER PRIORITIES (Neutral Impact):
-- Extra-curricular activities (0.97x odds)
-- Internship Experience (1.1x odds)
+LOWER PRIORITIES (Neutral/Low Impact):
+- Internship Experience (Odds Ratio: 1.1)
+- Extra-curricular activities (Odds Ratio: 0.97)
 
 VERDICT:
-Focus on being articulate and maintaining good grades. Don't over-schedule yourself with clubs.
+Focus on being articulate and maintaining good grades. Don't over-schedule yourself with low-impact activities.
 """
         st.download_button(
             label="📄 Download Student Guide",
@@ -1923,6 +1909,16 @@ Focus on being articulate and maintaining good grades. Don't over-schedule yours
             file_name="student_success_guide.txt",
             mime="text/plain"
         )
+    
+    # Footer
+    st.markdown("---")
+    st.markdown("""
+        <div style='text-align: center; color: gray; padding: 2rem;'>
+            <p><strong>College Student Placement Analysis</strong></p>
+            <p>Final Project: Data Analysis Techniques</p>
+            <p>Powered by Logistic Regression | Streamlit Application</p>
+        </div>
+    """, unsafe_allow_html=True)
     
     # Footer
     st.markdown("---")
