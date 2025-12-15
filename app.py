@@ -747,14 +747,6 @@ def main():
             **Objective:** Select the strongest predictors while avoiding noise and redundancy.
             """)
             
-            # --- NEW SECTION: MULTICOLLINEARITY CHECK ---
-            st.markdown("#### 1️⃣ Multicollinearity Detection")
-            st.info("""
-            **Observation:** We generated a Correlation Matrix to check for redundant features.
-            * **Finding:** `CGPA` and `Academic_Performance` had a correlation of **0.90**.
-            * **The Problem:** Highly correlated input features confuse the model, splitting the "importance" score between them.
-            * **Resolution:** We used a **"Winner Takes All"** strategy. Since `CGPA` had a stronger correlation with the target (`Placement`), we kept `CGPA` and dropped `Academic_Performance`.
-            """)
             
             st.markdown("---")
             st.markdown("#### 2️⃣ Final Feature Set")
@@ -771,15 +763,14 @@ def main():
                 5. **Internship Experience** (Industry Exposure)
                 6. **Prev Sem Result** (Short-term Trend)
                 7. **Extra Curriculars** (Personality)
+                8. **Academic_Performance** 
                 """)
             
             with feature_col2:
-                st.markdown("#### ❌ Dropped Features (3)")
+                st.markdown("#### ❌ Dropped Features (1)")
                 st.markdown("""
                 * **College_ID**: 
                   * *Reason:* Random identifier (Nominal variable). No predictive power.
-                * **Academic_Performance**:
-                  * *Reason:* **High Multicollinearity**. Redundant with `CGPA`.
                 """)
 
         # Step 6: Train-Test Split
